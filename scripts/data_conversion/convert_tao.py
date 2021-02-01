@@ -75,7 +75,7 @@ def convert(config):
             for ann in timestep_annotations:
                 seq_properties[seq_id]['pos_category_ids'].add(ann['category_id'])
                 # convert box format from xywh to x0y0x1y1
-                lines.append('%d %d %d %d %d %d %d %d %s %d %d %d %d\n'
+                lines.append('%d %d %d %d %d %d %d %d %s %f %f %f %f\n'
                              % (t, ann['id'], ann['category_id'], ann['iscrowd'], 0, 0, 0, 0, 'None',
                                 ann['bbox'][0], ann['bbox'][1], ann['bbox'][0] + ann['bbox'][2],
                                 ann['bbox'][1] + ann['bbox'][3]))
