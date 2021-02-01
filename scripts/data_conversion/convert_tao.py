@@ -76,7 +76,7 @@ def convert(config):
                 seq_properties[seq_id]['pos_category_ids'].add(ann['category_id'])
                 # convert box format from xywh to x0y0x1y1
                 lines.append('%d %d %d %d %d %d %d %d %s %d %d %d %d\n'
-                             % (t, ann['id'], ann['category_id'], ann['iscrowd'], 0, 0, 0, 0, '',
+                             % (t, ann['id'], ann['category_id'], ann['iscrowd'], 0, 0, 0, 0, 'None',
                                 ann['bbox'][0], ann['bbox'][1], ann['bbox'][0] + ann['bbox'][2],
                                 ann['bbox'][1] + ann['bbox'][3]))
         with open(seq_file, 'w') as f:

@@ -2,10 +2,7 @@ import sys
 import os
 from glob import glob
 from pathlib import Path
-import numpy as np
 import json
-from pycocotools import mask as mask_utils
-from tqdm import tqdm
 import shutil
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '...')))
@@ -25,12 +22,13 @@ def get_default_config():
 
 
 def convert(config):
+    print("Converting BDD100K ground truth data...")
+    for k, v in config.items():
+        print("%s: %s" % (k, v))
     gt_fol = os.path.join(config['ORIGINAL_GT_FOLDER'], config['SPLIT_TO_CONVERT'])
 
-    distractor_classes = ['other person', 'trailer', 'other vehicle']
     class_name_to_class_id = {'pedestrian': 1, 'rider': 2, 'other person': 3, 'car': 4, 'bus': 5, 'truck': 6,
-                              'train': 7, 'trailer': 8, 'other vehicle': 9, 'motorcycle': 10, 'bicycle': 11,
-                              'ignore': 1000}
+                              'train': 7, 'trailer': 8, 'other vehicle': 9, 'motorcycle': 10, 'bicycle': 11}
 
     # determine sequences
     sequences = glob(os.path.join(gt_fol, '*.json'))
@@ -39,7 +37,6 @@ def convert(config):
 
     # create folder for the new ground truth data if not present
     new_gt_folder = os.path.join(config['NEW_GT_FOLDER'], config['SPLIT_TO_CONVERT'])
-    Path(new_gt_folder).mkdir(parents=True, exist_ok=True)
     if not config['OUTPUT_AS_ZIP']:
         data_dir = os.path.join(new_gt_folder, 'data')
     else:
@@ -47,7 +44,7 @@ def convert(config):
     Path(data_dir).mkdir(parents=True, exist_ok=True)
 
     # iterate over sequences and write a text file with the annotations for each
-    for seq in tqdm(seq_list, desc='Converting BDD100k ground truth data'):
+    for seq in seq_list:
         # load sequence
         seq_file = os.path.join(gt_fol, seq + '.json')
         with open(seq_file) as f:
@@ -63,20 +60,18 @@ def convert(config):
         for t in range(num_timesteps):
             for label in data[t]['labels']:
                 # in bdd100k distractor class annotations and crowd regions are ignore regions
-                if label['category'] in distractor_classes or 'attributes' in label.keys() \
-                        and label['attributes']['Crowd']:
-                    cls = 'ignore'
+                if 'attributes' in label.keys():
+                    is_crowd = int(label['attributes']['Crowd'])
+                    is_truncated = int(label['attributes']['Truncated'])
+                    is_occluded = int(label['attributes']['Occluded'])
                 else:
-                    cls = label['category']
-                # convert bounding boxes in masks (bdd100k videos are 720p)
-                mask = np.zeros((720, 1280), order='F').astype(np.uint8)
-                # determine minimal mask which covers the given bounding box
-                mask[np.floor(label['box2d']['y1']).astype(int):np.ceil(label['box2d']['y2']).astype(int)+1,
-                     np.floor(label['box2d']['x1']).astype(int):np.ceil(label['box2d']['x2']).astype(int)+1] = 1
-                mask_encoded = mask_utils.encode(mask)
-                lines.append('%d %d %d %d %d %s\n' % (t, int(label['id']), class_name_to_class_id[cls],
-                                                      mask_encoded['size'][0], mask_encoded['size'][1],
-                                                      mask_encoded['counts']))
+                    is_crowd = 0
+                    is_truncated = 0
+                    is_occluded = 0
+                lines.append('%d %d %d %d %d %d %d %d %s %d %d %d %d\n'
+                             % (t, int(label['id']), class_name_to_class_id[label['category']], is_crowd, is_truncated,
+                                is_occluded, 0, 0, 'None', label['box2d']['x1'], label['box2d']['y1'],
+                                label['box2d']['x2'], label['box2d']['y2']))
         with open(seq_file, 'w') as f:
             f.writelines(lines)
 

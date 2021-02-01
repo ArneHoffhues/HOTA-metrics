@@ -43,7 +43,6 @@ def convert(config):
 
     # create folder for the new ground truth data if not present
     new_gt_folder = os.path.join(config['NEW_GT_FOLDER'], config['SPLIT_TO_CONVERT'])
-    Path(new_gt_folder).mkdir(parents=True, exist_ok=True)
     if not config['OUTPUT_AS_ZIP']:
         data_dir = os.path.join(new_gt_folder, 'data')
     else:

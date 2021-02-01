@@ -20,13 +20,19 @@ def get_default_config():
         'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/davis/'),  # Location of original GT data
         'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/davis/'),  # Location for the converted GT data
         'SPLIT_TO_CONVERT': 'val',  # Split to convert
-        'OUTPUT_AS_ZIP': True  # Whether the converted output should be zip compressed
+        'OUTPUT_AS_ZIP': False  # Whether the converted output should be zip compressed
     }
     return default_config
 
 
 def convert(config):
+    print("Converting DAVIS ground truth data...")
+    for k, v in config.items():
+        print("%s: %s" % (k, v))
+
     gt_fol = os.path.join(config['ORIGINAL_GT_FOLDER'], 'Annotations_unsupervised/480p')
+
+    class_name_to_class_id = {'general': 1, 'void': 2}
 
     # check if all gt data is present and determine sequence lengths
     seq_list = []
@@ -45,23 +51,16 @@ def convert(config):
             curr_timesteps = len(glob(os.path.join(curr_dir, '*.png')))
             seq_lengths[seq] = curr_timesteps
 
-    # write sequence map data to file
-    lines = ['%s empty %d %d\n' % (k, 0, v) for k, v in seq_lengths.items()]
-    seqmap_file = os.path.join(config['NEW_GT_FOLDER'], config['SPLIT_TO_CONVERT'],
-                               config['SPLIT_TO_CONVERT'] + '.seqmap')
-
-    with open(seqmap_file, 'w') as f:
-        f.writelines(lines)
-
     # set data output directory
+    new_gt_folder = os.path.join(config['NEW_GT_FOLDER'], config['SPLIT_TO_CONVERT'])
     if not config['OUTPUT_AS_ZIP']:
-        data_dir = os.path.join(config['NEW_GT_FOLDER'], config['SPLIT_TO_CONVERT'], 'data')
+        data_dir = os.path.join(new_gt_folder, 'data')
     else:
-        data_dir = os.path.join(config['NEW_GT_FOLDER'], config['SPLIT_TO_CONVERT'], 'tmp')
+        data_dir = os.path.join(new_gt_folder, 'tmp')
     Path(data_dir).mkdir(parents=True, exist_ok=True)
 
     # iterate over sequences and write a text file with the annotations for each
-    for seq in tqdm(seq_list, desc='Converting DAVIS ground truth data'):
+    for seq in tqdm(seq_list):
         seq_dir = os.path.join(gt_fol, seq)
         num_timesteps = seq_lengths[seq]
         frames = np.sort(glob(os.path.join(seq_dir, '*.png')))
@@ -88,12 +87,14 @@ def convert(config):
         seq_file = os.path.join(data_dir, seq + '.txt')
         lines = []
         for t in range(num_timesteps):
-            to_append = ['%d %d %d %d %d %s\n' % (t, i, 0, masks_encoded[i][t]['size'][0],
-                                                  masks_encoded[i][t]['size'][1], masks_encoded[i][t]['counts'])
+            to_append = ['%d %d %d %d %d %d %d %d %s %d %d %d %d\n'
+                         % (t, i, 1, 0, 0, 0, masks_encoded[i][t]['size'][0], masks_encoded[i][t]['size'][1],
+                            masks_encoded[i][t]['counts'], 0, 0, 0, 0)
                          for i in masks_encoded.keys()]
             lines += to_append
-            lines += ['%d %d %d %d %d %s\n' % (t, -1, 1, masks_void[t]['size'][0],
-                                               masks_void[t]['size'][1], masks_void[t]['counts'])]
+            lines += ['%d %d %d %d %d %d %d %d %s %d %d %d %d\n'
+                      % (t, -1, 2, 0, 0, 0, masks_void[t]['size'][0], masks_void[t]['size'][1], masks_void[t]['counts']
+                         , 0, 0, 0, 0)]
         with open(seq_file, 'w') as f:
             f.writelines(lines)
 
@@ -102,6 +103,21 @@ def convert(config):
         output_filename = os.path.join(config['NEW_GT_FOLDER'], config['SPLIT_TO_CONVERT'], 'data')
         shutil.make_archive(output_filename, 'zip', data_dir)
         shutil.rmtree(data_dir)
+
+    # write the class name to class id maps to file
+    lines = ['%s %d\n' % (k, v) for k, v in class_name_to_class_id.items()]
+    clsmap_file = os.path.join(new_gt_folder, config['SPLIT_TO_CONVERT'] + '.clsmap')
+
+    with open(clsmap_file, 'w') as f:
+        f.writelines(lines)
+
+    # write sequence map data to file
+    lines = ['%s empty %d %d\n' % (k, 0, v) for k, v in seq_lengths.items()]
+    seqmap_file = os.path.join(new_gt_folder, config['SPLIT_TO_CONVERT'] + '.seqmap')
+
+    with open(seqmap_file, 'w') as f:
+        f.writelines(lines)
+
 
 
 if __name__ == '__main__':
