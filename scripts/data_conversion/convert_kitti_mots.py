@@ -12,8 +12,8 @@ from hota_metrics import utils  # noqa: E402
 def get_default_config():
     code_path = utils.get_code_path()
     default_config = {
-        'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/kitti/kitti_2d_box'),  # Location of original GT data
-        'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/kitti/kitti_2d_box'),
+        'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/kitti/kitti_mots'),  # Location of original GT data
+        'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/kitti/kitti_mots'),
         # Location for the converted GT data
         'SPLIT_TO_CONVERT': 'val',  # Split to convert
         'OUTPUT_AS_ZIP': False  # Whether the converted output should be zip compressed
@@ -22,33 +22,31 @@ def get_default_config():
 
 
 def convert(config):
-    print("Converting KITTI 2D Box ground truth data...")
+    print("Converting KITTI MOTS ground truth data...")
     for k, v in config.items():
         print("%s: %s" % (k, v))
     gt_fol = config['ORIGINAL_GT_FOLDER']
 
-    class_name_to_class_id = {'car': 1, 'van': 2, 'truck': 3, 'pedestrian': 4, 'person': 5,
-                              'cyclist': 6, 'tram': 7, 'misc': 8, 'dontcare': 9}
+    class_name_to_class_id = {'cars': 1, 'pedestrians': 2, 'ignore': 10}
 
     # Get sequences to eval and check gt files exist
     seq_list = []
     seq_lengths = {}
-    seqmap_name = 'evaluate_tracking.seqmap.' + config['SPLIT_TO_CONVERT']
+    seqmap_name = config['SPLIT_TO_CONVERT'] + ".seqmap"
     seqmap_file = os.path.join(gt_fol, seqmap_name)
-    if not os.path.isfile(seqmap_file):
-        raise Exception('no seqmap found: ' + os.path.basename(seqmap_file))
-    with open(seqmap_file) as fp:
+    assert os.path.isfile(seqmap_file), 'no seqmap %s found in %s' % (seqmap_name, gt_fol)
+
+    with open(seqmap_file, "r") as fp:
         dialect = csv.Sniffer().sniff(fp.read(1024))
         fp.seek(0)
         reader = csv.reader(fp, dialect)
         for row in reader:
             if len(row) >= 4:
-                seq = row[0]
+                seq = "%04d" % int(row[0])
                 seq_list.append(seq)
-                seq_lengths[seq] = int(row[3])
-                curr_file = os.path.join(gt_fol, 'label_02', seq + '.txt')
-                if not os.path.isfile(curr_file):
-                    raise Exception('GT file not found: ' + os.path.basename(curr_file))
+                seq_lengths[seq] = int(row[3]) + 1
+                assert os.path.isfile(os.path.join(gt_fol, 'instances_txt', seq + '.txt')), \
+                    'GT file %s.txt not found in %s' % (seq, os.path.join(gt_fol, 'instances_txt'))
 
     # create folder for the new ground truth data if not present
     new_gt_folder = os.path.join(config['NEW_GT_FOLDER'], config['SPLIT_TO_CONVERT'])
@@ -60,8 +58,8 @@ def convert(config):
 
     # iterate over sequences and write a text file with the annotations for each
     for seq in seq_list:
-        # sequence path
-        file = os.path.join(gt_fol, 'label_02', seq + '.txt')
+        # load sequences
+        file = os.path.join(gt_fol, 'instances_txt', seq + '.txt')
 
         # write to sequence files
         seq_file = os.path.join(data_dir, seq + '.txt')
@@ -71,9 +69,8 @@ def convert(config):
             fp.seek(0)
             reader = csv.reader(fp, dialect)
             for row in reader:
-                lines.append('%s %s %d %d %s %s %d %d %s %s %s %s %s\n'
-                             % (row[0], row[1], class_name_to_class_id[row[2].lower()], 0, row[3], row[4], 0, 0, 'None',
-                                row[6], row[7], row[8], row[9]))
+                lines.append('%s %s %s %d %d %d %s %s %s %f %f %f %f\n'
+                             % (row[0], row[1], row[2], 0, 0, 0, row[3], row[4], row[5], 0, 0, 0, 0))
         with open(seq_file, 'w') as f:
             f.writelines(lines)
 
