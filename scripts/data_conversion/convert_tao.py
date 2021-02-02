@@ -34,6 +34,13 @@ def convert(config):
         data = json.load(f)
 
     class_name_to_class_id = {cat['name']: cat['id'] for cat in data['categories']}
+    merge_map = {}
+    for category in data['categories']:
+        if 'merged' in category:
+            for to_merge in category['merged']:
+                merge_map[to_merge['id']] = category['id']
+    merge_map = {cat_id: merge_map[cat_id] if cat_id in merge_map.keys() else cat_id for cat_id
+                 in [cat['id'] for cat in data['categories']]}
 
     # determine sequences
     sequences = {vid['name'].replace('/', '-'): vid['id'] for vid in data['videos']}
@@ -75,8 +82,8 @@ def convert(config):
             for ann in timestep_annotations:
                 seq_properties[seq_id]['pos_category_ids'].add(ann['category_id'])
                 # convert box format from xywh to x0y0x1y1
-                lines.append('%d %d %d %d %d %d %d %d %s %f %f %f %f\n'
-                             % (t, ann['id'], ann['category_id'], ann['iscrowd'], 0, 0, 0, 0, 'None',
+                lines.append('%d %d %d %d %d %d %d %d %d %s %f %f %f %f\n'
+                             % (t, ann['id'], ann['category_id'], ann['iscrowd'], 0, 0, 0, 0, 0, 'None',
                                 ann['bbox'][0], ann['bbox'][1], ann['bbox'][0] + ann['bbox'][2],
                                 ann['bbox'][1] + ann['bbox'][3]))
         with open(seq_file, 'w') as f:
@@ -89,7 +96,7 @@ def convert(config):
         shutil.rmtree(data_dir)
 
     # write the class name to class id maps to file
-    lines = ['%s %d\n' % (k, v) for k, v in class_name_to_class_id.items()]
+    lines = ['%s %d %d\n' % (k, v, merge_map[v]) for k, v in class_name_to_class_id.items()]
     clsmap_file = os.path.join(new_gt_folder, config['SPLIT_TO_CONVERT'] + '.clsmap')
 
     with open(clsmap_file, 'w') as f:
