@@ -8,21 +8,21 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '...'
 from hota_metrics import utils  # noqa: E402
 
 
-class MOTChallengeMOTSTrackerConverter(_BaseTrackerDataConverter):
-    """Converter for MOTChallengeMOTS tracker data"""
+class KittiMOTSTrackerConverter(_BaseTrackerDataConverter):
+    """Converter for Kitti MOTS tracker data"""
 
     @staticmethod
     def get_default_config():
         """Default converter config values"""
         code_path = utils.get_code_path()
         default_config = {
-            'ORIGINAL_TRACKER_FOLDER': os.path.join(code_path, 'data/trackers/mot_challenge/'),
+            'ORIGINAL_TRACKER_FOLDER': os.path.join(code_path, 'data/trackers/kitti/'),
             # Location of original GT data
-            'NEW_TRACKER_FOLDER': os.path.join(code_path, 'data/converted_trackers/mot_challenge/mot_challenge_mots'),
+            'NEW_TRACKER_FOLDER': os.path.join(code_path, 'data/converted_trackers/kitti/kitti_mots'),
             # Location for the converted GT data
-            'GT_FOLDER': os.path.join(code_path, 'data/converted_gt/mot_challenge/mot_challenge_mots'),
+            'GT_FOLDER': os.path.join(code_path, 'data/converted_gt/kitti/kitti_mots'),
             # Location of ground truth data where the seqmap and the clsmap reside
-            'SPLIT_TO_CONVERT': 'train',  # Split to convert
+            'SPLIT_TO_CONVERT': 'val',  # Split to convert
             'TRACKER_LIST': None,  # List of trackers to convert, None for all in folder
             'OUTPUT_AS_ZIP': False  # Whether the converted output should be zip compressed
         }
@@ -31,12 +31,12 @@ class MOTChallengeMOTSTrackerConverter(_BaseTrackerDataConverter):
     @staticmethod
     def get_dataset_name():
         """Returns the name of the associated dataset"""
-        return 'MOTChallengeMOTS'
+        return 'KittiMOTS'
 
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.tracker_fol = os.path.join(config['ORIGINAL_TRACKER_FOLDER'], 'MOTS-' + config['SPLIT_TO_CONVERT'])
+        self.tracker_fol = os.path.join(config['ORIGINAL_TRACKER_FOLDER'], 'kitti_mots_' + config['SPLIT_TO_CONVERT'])
         self.new_tracker_folder = os.path.join(config['NEW_TRACKER_FOLDER'], config['SPLIT_TO_CONVERT'])
         if not config['TRACKER_LIST']:
             self.tracker_list = os.listdir(self.tracker_fol)
@@ -81,13 +81,13 @@ class MOTChallengeMOTSTrackerConverter(_BaseTrackerDataConverter):
                 fp.seek(0)
                 reader = csv.reader(fp, dialect)
                 for row in reader:
-                    lines.append('%d %s %s %s %s %s %f %f %f %f %f\n'
-                                 % (int(row[0]) - 1, row[1], row[2], row[3], row[4], row[5], 0, 0, 0, 0, 1))
+                    lines.append('%s %s %s %s %s %s %f %f %f %f %f\n'
+                                 % (row[0], row[1], row[2], row[3], row[4], row[5], 0, 0, 0, 0, 1))
             data[seq] = lines
         return data
 
 
 if __name__ == '__main__':
-    default_conf = MOTChallengeMOTSTrackerConverter.get_default_config()
+    default_conf = KittiMOTSTrackerConverter.get_default_config()
     conf = utils.update_config(default_conf)
-    MOTChallengeMOTSTrackerConverter(conf).convert()
+    KittiMOTSTrackerConverter(conf).convert()
