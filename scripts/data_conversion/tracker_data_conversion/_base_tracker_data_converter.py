@@ -1,4 +1,5 @@
 import os
+import csv
 from pathlib import Path
 import shutil
 from abc import ABC, abstractmethod
@@ -79,3 +80,35 @@ class _BaseTrackerDataConverter(ABC):
                 output_filename = os.path.join(self.new_tracker_folder, tracker, 'data')
                 shutil.make_archive(output_filename, 'zip', data_dir)
                 shutil.rmtree(data_dir)
+
+    def _get_sequences(self):
+        seqmap_file = os.path.join(self.gt_dir, 'seqmaps', self.split_to_convert + '.seqmap')
+        if not os.path.isfile(seqmap_file):
+            raise Exception('no seqmap found: ' + seqmap_file)
+        self.seq_list = []
+        self.seq_lengths = {}
+        with open(seqmap_file) as fp:
+            dialect = csv.Sniffer().sniff(fp.readline())
+            fp.seek(0)
+            reader = csv.reader(fp, dialect)
+            for row in reader:
+                if len(row) >= 2:
+                    seq = row[0]
+                    self.seq_list.append(seq)
+                    self.seq_lengths[seq] = int(row[1])
+
+    def _get_classes(self):
+        clsmap_file = os.path.join(self.gt_dir, 'clsmaps', self.split_to_convert + '.clsmap')
+        if not os.path.isfile(clsmap_file):
+            raise Exception('No clsmap found: ' + clsmap_file)
+        self.class_name_to_class_id = {}
+        with open(clsmap_file) as fp:
+            dialect = csv.Sniffer().sniff(fp.readline())
+            fp.seek(0)
+            reader = csv.reader(fp, dialect)
+            for row in reader:
+                if len(row) == 2:
+                    self.class_name_to_class_id[row[0]] = int(row[1])
+                elif len(row) >= 3:
+                    cls = ' '.join([elem for elem in row[:-1]])
+                    self.class_name_to_class_id[cls] = int(row[-1])
