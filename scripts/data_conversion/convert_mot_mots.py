@@ -25,9 +25,10 @@ class MOTChallengeMOTSConverter(_BaseDatasetConverter):
         }
         return default_config
 
-    def get_dataset_name(self):
+    @staticmethod
+    def get_dataset_name():
         """Returns the name of the associated dataset"""
-        return 'MOTChallenge MOTS'
+        return 'MOTChallengeMOTS'
 
     def __init__(self, config):
         super().__init__()

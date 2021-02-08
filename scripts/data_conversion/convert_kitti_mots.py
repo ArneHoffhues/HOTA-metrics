@@ -24,9 +24,10 @@ class KittiMOTSConverter(_BaseDatasetConverter):
         }
         return default_config
 
-    def get_dataset_name(self):
+    @staticmethod
+    def get_dataset_name():
         """Returns the name of the associated dataset"""
-        return 'KITTI MOTS'
+        return 'KittiMOTS'
 
     def __init__(self, config):
         super().__init__()
@@ -38,8 +39,8 @@ class KittiMOTSConverter(_BaseDatasetConverter):
         self.class_name_to_class_id = {'cars': 1, 'pedestrians': 2, 'ignore': 10}
 
         # Get sequences to convert and check gt files exist
-        seq_list = []
-        seq_lengths = {}
+        self.seq_list = []
+        self.seq_lengths = {}
         seqmap_name = config['SPLIT_TO_CONVERT'] + ".seqmap"
         seqmap_file = os.path.join(self.gt_fol, seqmap_name)
         assert os.path.isfile(seqmap_file), 'no seqmap %s found in %s' % (seqmap_name, self.gt_fol)
@@ -51,8 +52,8 @@ class KittiMOTSConverter(_BaseDatasetConverter):
             for row in reader:
                 if len(row) >= 4:
                     seq = "%04d" % int(row[0])
-                    seq_list.append(seq)
-                    seq_lengths[seq] = int(row[3]) + 1
+                    self.seq_list.append(seq)
+                    self.seq_lengths[seq] = int(row[3]) + 1
                     assert os.path.isfile(os.path.join(self.gt_fol, 'instances_txt', seq + '.txt')), \
                         'GT file %s.txt not found in %s' % (seq, os.path.join(self.gt_fol, 'instances_txt'))
 

@@ -26,7 +26,8 @@ class YouTubeVISConverter(_BaseDatasetConverter):
         }
         return default_config
 
-    def get_dataset_name(self):
+    @staticmethod
+    def get_dataset_name():
         """Returns the name of the associated dataset"""
         return 'YouTubeVIS'
 

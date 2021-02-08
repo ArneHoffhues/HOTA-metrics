@@ -26,9 +26,10 @@ class MOTChallenge2DBoxConverter(_BaseDatasetConverter):
         }
         return default_config
 
-    def get_dataset_name(self):
+    @staticmethod
+    def get_dataset_name():
         """Returns the name of the associated dataset"""
-        return 'MOTChallenge 2D Box'
+        return 'MOTChallenge2DBox'
 
     def __init__(self, config):
         super().__init__()

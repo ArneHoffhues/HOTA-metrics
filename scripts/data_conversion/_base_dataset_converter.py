@@ -26,8 +26,9 @@ class _BaseDatasetConverter(ABC):
     def get_default_config():
         ...
 
+    @staticmethod
     @abstractmethod
-    def get_dataset_name(self):
+    def get_dataset_name():
         ...
 
     @abstractmethod

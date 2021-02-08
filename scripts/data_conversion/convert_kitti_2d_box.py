@@ -24,9 +24,10 @@ class Kitti2DBoxConverter(_BaseDatasetConverter):
         }
         return default_config
 
-    def get_dataset_name(self):
+    @staticmethod
+    def get_dataset_name():
         """Returns the name of the associated dataset"""
-        return 'KITTI 2D Box'
+        return 'Kitti2DBox'
 
     def __init__(self, config):
         super().__init__()
