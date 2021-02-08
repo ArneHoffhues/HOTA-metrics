@@ -74,9 +74,9 @@ class _BaseDatasetConverter(ABC):
         :return: None
         """
         if not self.output_as_zip:
-            data_dir = os.path.join(self.new_gt_folder, 'data')
+            data_dir = os.path.join(self.new_gt_folder, self.split_to_convert, 'data')
         else:
-            data_dir = os.path.join(self.new_gt_folder, 'tmp')
+            data_dir = os.path.join(self.new_gt_folder, self.split_to_convert, 'tmp')
         # create directory if it does not exist
         Path(data_dir).mkdir(parents=True, exist_ok=True)
 
@@ -88,7 +88,7 @@ class _BaseDatasetConverter(ABC):
 
         # zip the output files and delete temporary data directory
         if self.output_as_zip:
-            output_filename = os.path.join(self.new_gt_folder, 'data')
+            output_filename = os.path.join(self.new_gt_folder, self.split_to_convert, 'data')
             shutil.make_archive(output_filename, 'zip', data_dir)
             shutil.rmtree(data_dir)
 
@@ -102,7 +102,8 @@ class _BaseDatasetConverter(ABC):
         :return: None
         """
         lines = ['%s %d\n' % (k, v) for k, v in self.class_name_to_class_id.items()]
-        clsmap_file = os.path.join(self.new_gt_folder, self.split_to_convert + '.clsmap')
+        Path(os.path.join(self.new_gt_folder, 'clsmaps')).mkdir(parents=True, exist_ok=True)
+        clsmap_file = os.path.join(self.new_gt_folder, 'clsmaps', self.split_to_convert + '.clsmap')
 
         with open(clsmap_file, 'w') as f:
             f.writelines(lines)
@@ -117,7 +118,8 @@ class _BaseDatasetConverter(ABC):
         :return: None
         """
         lines = ['%s %d\n' % (k, v) for k, v in self.seq_lengths.items()]
-        seqmap_file = os.path.join(self.new_gt_folder, self.split_to_convert + '.seqmap')
+        Path(os.path.join(self.new_gt_folder, 'seqmaps')).mkdir(parents=True, exist_ok=True)
+        seqmap_file = os.path.join(self.new_gt_folder, 'seqmaps', self.split_to_convert + '.seqmap')
 
         with open(seqmap_file, 'w') as f:
             f.writelines(lines)

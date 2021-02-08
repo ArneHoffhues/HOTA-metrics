@@ -34,7 +34,7 @@ class BDD100KConverter(_BaseDatasetConverter):
         super().__init__()
         self.config = config
         self.gt_fol = config['ORIGINAL_GT_FOLDER'] + config['SPLIT_TO_CONVERT']
-        self.new_gt_folder = os.path.join(config['NEW_GT_FOLDER'], config['SPLIT_TO_CONVERT'])
+        self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
         self.split_to_convert = config['SPLIT_TO_CONVERT']
         self.class_name_to_class_id = {'pedestrian': 1, 'rider': 2, 'other person': 3, 'car': 4, 'bus': 5, 'truck': 6,
