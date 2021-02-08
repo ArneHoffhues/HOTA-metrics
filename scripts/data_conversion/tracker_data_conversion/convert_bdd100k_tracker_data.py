@@ -1,6 +1,5 @@
 import sys
 import os
-import csv
 import json
 import numpy as np
 from tqdm import tqdm
@@ -20,7 +19,8 @@ class BDD100KTrackerConverter(_BaseTrackerDataConverter):
         """Default converter config values"""
         code_path = utils.get_code_path()
         default_config = {
-            'ORIGINAL_TRACKER_FOLDER': os.path.join(code_path, 'data/trackers/bdd100k/'),  # Location of original GT data
+            'ORIGINAL_TRACKER_FOLDER': os.path.join(code_path, 'data/trackers/bdd100k/'),
+            # Location of original GT data
             'NEW_TRACKER_FOLDER': os.path.join(code_path, 'data/converted_trackers/bdd100k/'),
             # Location for the converted GT data
             'GT_FOLDER': os.path.join(code_path, 'data/converted_gt/bdd100k/'),
@@ -90,7 +90,7 @@ class BDD100KTrackerConverter(_BaseTrackerDataConverter):
                     # compute smallest mask which fully covers the bounding box
                     mask = np.zeros((720, 1280), order='F').astype(np.uint8)
                     mask[int(np.floor(label['box2d']['y1'])):int(np.ceil(label['box2d']['y2'])+1),
-                         int(np.floor(label['box2d']['x1'])):int(np.ceil(label['box2d']['x2'])+1),] = 1
+                         int(np.floor(label['box2d']['x1'])):int(np.ceil(label['box2d']['x2'])+1)] = 1
                     encoded_mask = mask_utils.encode(mask)
                     lines.append('%d %d %d %d %d %s %f %f %f %f %f\n'
                                  % (t, int(label['id']), self.class_name_to_class_id[label['category']],
