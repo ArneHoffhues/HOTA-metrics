@@ -12,6 +12,7 @@ class _BaseDatasetConverter(ABC):
     def __init__(self):
         self.seq_list = None
         self.seq_lengths = None
+        self.seq_sizes = None
         self.class_name_to_class_id = None
         self.gt_fol = None
         self.new_gt_folder = None
@@ -113,11 +114,12 @@ class _BaseDatasetConverter(ABC):
         Writes the sequence meta information to a file which will be located as split_to_convert.seqmap inside the
         new_gt_folder directory.
         The sequence meta information has the following fields:
-            sequence_name(string), sequence_length(int)
+            sequence_name(string), sequence_length(int), seqeuence_height(int), sequence_width(int)
         The fields are separated by whitespaces.
         :return: None
         """
-        lines = ['%s %d\n' % (k, v) for k, v in self.seq_lengths.items()]
+        lines = ['%s %d %d %d\n' % (k, v, self.seq_sizes[k][0], self.seq_sizes[k][1])
+                 for k, v in self.seq_lengths.items()]
         Path(os.path.join(self.new_gt_folder, 'seqmaps')).mkdir(parents=True, exist_ok=True)
         seqmap_file = os.path.join(self.new_gt_folder, 'seqmaps', self.split_to_convert + '.seqmap')
 

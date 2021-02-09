@@ -52,6 +52,8 @@ class YouTubeVISConverter(_BaseDatasetConverter):
         self.sequences = {vid['file_names'][0].split('/')[0]: vid['id'] for vid in self.gt_data['videos']}
         self.seq_list = list(self.sequences.keys())
         self.seq_lengths = {vid['file_names'][0].split('/')[0]: vid['length'] for vid in self.gt_data['videos']}
+        self.seq_sizes = {vid['file_names'][0].split('/')[0]: (vid['height'], vid['width'])
+                          for vid in self.gt_data['videos']}
 
     def _prepare_data(self):
         """

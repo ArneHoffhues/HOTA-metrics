@@ -41,6 +41,7 @@ class KittiMOTSConverter(_BaseDatasetConverter):
         # Get sequences to convert and check gt files exist
         self.seq_list = []
         self.seq_lengths = {}
+        self.seq_sizes = {}
         seqmap_name = config['SPLIT_TO_CONVERT'] + ".seqmap"
         seqmap_file = os.path.join(self.gt_fol, seqmap_name)
         assert os.path.isfile(seqmap_file), 'no seqmap %s found in %s' % (seqmap_name, self.gt_fol)
@@ -74,6 +75,8 @@ class KittiMOTSConverter(_BaseDatasetConverter):
                 fp.seek(0)
                 reader = csv.reader(fp, dialect)
                 for row in reader:
+                    if seq not in self.seq_sizes:
+                        self.seq_sizes[seq] = (int(row[3]), int(row[4]))
                     lines.append('%s %s %s %d %d %d %d %s %s %s %f %f %f %f\n'
                                  % (row[0], row[1], row[2], 0, 0, 0, 0, row[3], row[4], row[5], 0, 0, 0, 0))
             data[seq] = lines

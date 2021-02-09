@@ -43,6 +43,7 @@ class Kitti2DBoxConverter(_BaseDatasetConverter):
         # Get sequences to convert and check gt files exist
         self.seq_list = []
         self.seq_lengths = {}
+        self.seq_sizes = {}
         seqmap_name = 'evaluate_tracking.seqmap.' + config['SPLIT_TO_CONVERT']
         seqmap_file = os.path.join(self.gt_fol, seqmap_name)
         if not os.path.isfile(seqmap_file):
@@ -56,6 +57,8 @@ class Kitti2DBoxConverter(_BaseDatasetConverter):
                     seq = row[0]
                     self.seq_list.append(seq)
                     self.seq_lengths[seq] = int(row[3])
+                    # no sequence size informaton
+                    self.seq_sizes[seq] = (0, 0)
                     curr_file = os.path.join(self.gt_fol, 'label_02', seq + '.txt')
                     if not os.path.isfile(curr_file):
                         raise Exception('GT file not found: ' + os.path.basename(curr_file))

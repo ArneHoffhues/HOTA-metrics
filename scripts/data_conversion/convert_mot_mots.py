@@ -43,6 +43,7 @@ class MOTChallengeMOTSConverter(_BaseDatasetConverter):
         # Get sequences to convert and check gt files exist
         self.seq_list = []
         self.seq_lengths = {}
+        self.seq_sizes = {}
         seqmap_file = os.path.join(config['ORIGINAL_GT_FOLDER'], 'seqmaps', self.gt_set + '.txt')
         assert os.path.isfile(seqmap_file), 'no seqmap found: ' + seqmap_file
         with open(seqmap_file) as fp:
@@ -57,6 +58,7 @@ class MOTChallengeMOTSConverter(_BaseDatasetConverter):
                 ini_data = configparser.ConfigParser()
                 ini_data.read(ini_file)
                 self.seq_lengths[seq] = int(ini_data['Sequence']['seqLength'])
+                self.seq_sizes[seq] = (int(ini_data['Sequence']['imHeight']), int(ini_data['Sequence']['imWidth']))
                 curr_file = os.path.join(self.gt_fol, seq, 'gt', 'gt.txt')
                 assert os.path.isfile(curr_file), 'GT file not found: ' + curr_file
 

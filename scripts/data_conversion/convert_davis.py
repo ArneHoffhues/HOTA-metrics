@@ -45,6 +45,7 @@ class DAVISConverter(_BaseDatasetConverter):
         # Get sequences to convert and check gt files exist
         self.seq_list = []
         self.seq_lengths = {}
+        self.seq_sizes = {}
         seqmap_file = os.path.join(config['ORIGINAL_GT_FOLDER'], 'ImageSets/2017', config['SPLIT_TO_CONVERT'] + '.txt')
         assert os.path.isfile(seqmap_file), 'no seqmap found: ' + seqmap_file
         with open(seqmap_file) as fp:
@@ -76,6 +77,7 @@ class DAVISConverter(_BaseDatasetConverter):
             all_masks = np.zeros((num_timesteps, *mask0.shape))
             for i, t in enumerate(frames):
                 all_masks[i, ...] = np.array(Image.open(t))
+            self.seq_sizes[seq] = mask0.shape
 
             # determine and encode void masks
             masks_void = all_masks == 255

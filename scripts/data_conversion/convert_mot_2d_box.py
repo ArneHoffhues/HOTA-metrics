@@ -46,6 +46,7 @@ class MOTChallenge2DBoxConverter(_BaseDatasetConverter):
         # Get sequences to convert and check gt files exist
         self.seq_list = []
         self.seq_lengths = {}
+        self.seq_sizes = {}
         seqmap_file = os.path.join(config['ORIGINAL_GT_FOLDER'], 'seqmaps', self.gt_set + '.txt')
         if not os.path.isfile(seqmap_file):
             raise Exception('no seqmap found: ' + os.path.basename(seqmap_file))
@@ -62,6 +63,7 @@ class MOTChallenge2DBoxConverter(_BaseDatasetConverter):
                 ini_data = configparser.ConfigParser()
                 ini_data.read(ini_file)
                 self.seq_lengths[seq] = int(ini_data['Sequence']['seqLength'])
+                self.seq_sizes[seq] = (int(ini_data['Sequence']['imHeight']), int(ini_data['Sequence']['imWidth']))
                 curr_file = os.path.join(self.gt_fol, seq, 'gt', 'gt.txt')
                 if not os.path.isfile(curr_file):
                     raise Exception('GT file not found: ' + seq + '/gt/' + os.path.basename(curr_file))

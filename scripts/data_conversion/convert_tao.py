@@ -2,6 +2,7 @@ import sys
 import os
 from glob import glob
 import json
+from pathlib import Path
 from _base_dataset_converter import _BaseDatasetConverter
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '...')))
@@ -58,7 +59,8 @@ class TAOConverter(_BaseDatasetConverter):
         # determine sequences
         self.sequences = {vid['name'].replace('/', '-'): vid['id'] for vid in self.gt_data['videos']}
         self.seq_list = list(self.sequences.keys())
-        self.seq_properties = {vid['id']: {'pos_category_ids': set(),
+        self.seq_properties = {vid['id']: {'size': (vid['height'], vid['width']),
+                                           'pos_category_ids': set(),
                                            'neg_category_ids': vid['neg_category_ids'],
                                            'not_exhaustively_labeled_ids': vid['not_exhaustive_category_ids']}
                                for vid in self.gt_data['videos']}
@@ -108,7 +110,8 @@ class TAOConverter(_BaseDatasetConverter):
         :return: None
         """
         lines = ['%s %d %d\n' % (k, v, self.merge_map[v]) for k, v in self.class_name_to_class_id.items()]
-        clsmap_file = os.path.join(self.new_gt_folder, self.split_to_convert + '.clsmap')
+        Path(os.path.join(self.new_gt_folder, 'clsmaps')).mkdir(parents=True, exist_ok=True)
+        clsmap_file = os.path.join(self.new_gt_folder, 'clsmaps', self.split_to_convert + '.clsmap')
 
         with open(clsmap_file, 'w') as f:
             f.writelines(lines)
@@ -118,20 +121,23 @@ class TAOConverter(_BaseDatasetConverter):
         Writes the sequence meta information to a file which will be located as split_to_convert.seqmap inside the
         new_gt_folder directory.
         The sequence meta information has the following fields:
-            sequence_name(string), sequence_length(int), positive_category_ids(separated by commas),
-            negative_category_ids(separated by commas), not_exhaustively_labeled_category_ids(separated by commas)
+            sequence_name(string), sequence_length(int), seqeuence_height(int), sequence_width(int),
+            positive_category_ids(separated by commas), negative_category_ids(separated by commas),
+            not_exhaustively_labeled_category_ids(separated by commas)
         The fields are separated by whitespaces.
         :return: None
         """
         for vid in self.seq_properties.keys():
             self.seq_properties[vid]['pos_category_ids'] = list(self.seq_properties[vid]['pos_category_ids'])
-        lines = ['%s %d %s %s %s\n' % (k, self.seq_properties[v]['length'],
-                                       ','.join(str(i) for i in self.seq_properties[v]['pos_category_ids']),
-                                       ','.join(str(i) for i in self.seq_properties[v]['neg_category_ids']),
-                                       ','.join(str(i) for i in
-                                                self.seq_properties[v]['not_exhaustively_labeled_ids']))
+        lines = ['%s %d %d %d %s %s %s\n' % (k, self.seq_properties[v]['length'], self.seq_properties[v]['size'][0],
+                                             self.seq_properties[v]['size'][1],
+                                             ','.join(str(i) for i in self.seq_properties[v]['pos_category_ids']),
+                                             ','.join(str(i) for i in self.seq_properties[v]['neg_category_ids']),
+                                             ','.join(str(i) for i in
+                                                      self.seq_properties[v]['not_exhaustively_labeled_ids']))
                  for k, v in self.sequences.items()]
-        seqmap_file = os.path.join(self.new_gt_folder, self.split_to_convert + '.seqmap')
+        Path(os.path.join(self.new_gt_folder, 'seqmaps')).mkdir(parents=True, exist_ok=True)
+        seqmap_file = os.path.join(self.new_gt_folder, 'seqmaps',  self.split_to_convert + '.seqmap')
 
         with open(seqmap_file, 'w') as f:
             f.writelines(lines)

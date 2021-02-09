@@ -44,6 +44,8 @@ class BDD100KConverter(_BaseDatasetConverter):
         self.sequences = glob(os.path.join(self.gt_fol, '*.json'))
         self.seq_list = [seq.split('/')[-1].split('.')[0] for seq in self.sequences]
         self.seq_lengths = {}
+        # bdd100k are 720p
+        self.seq_sizes = {seq: (720, 1280) for seq in self.seq_list}
 
     def _prepare_data(self):
         """
