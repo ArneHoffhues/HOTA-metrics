@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '...'
 from hota_metrics import utils  # noqa: E402
 
 
-class MOTChallengeMOTSConverter(_BaseDatasetConverter):
+class MOTSChallengeConverter(_BaseDatasetConverter):
     """Converter for MOTChallenge MOTS ground truth data"""
 
     @staticmethod
@@ -86,6 +86,6 @@ class MOTChallengeMOTSConverter(_BaseDatasetConverter):
 
 
 if __name__ == '__main__':
-    default_conf = MOTChallengeMOTSConverter.get_default_config()
+    default_conf = MOTSChallengeConverter.get_default_config()
     conf = utils.update_config(default_conf)
-    MOTChallengeMOTSConverter(conf).convert()
+    MOTSChallengeConverter(conf).convert()
