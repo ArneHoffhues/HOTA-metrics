@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 
 class _BaseTrackerDataConverter(ABC):
     """
-    Abstract base class for converting ground truth data into a unified format
+    Abstract base class for converting tracker data into a unified format
     """
     @abstractmethod
     def __init__(self):
@@ -39,19 +39,14 @@ class _BaseTrackerDataConverter(ABC):
 
     def convert(self):
         """
-        Function that converts the ground truth data of a dataset into a unified format and writes the data into 3
-        different files:
-        1)  The actual data for each sequence is written to a text file which will be located inside the
-            new_gt_folder/split_to_convert/ directory or will be compressed into a zip directory which will be located
-            in the new_gt_folder directory.
-        2)  The file containing the sequence meta information (seqmap) is written to a text file which will be located
-            inside the new_gt_folder directory.
-        3)  The file containing the class information (clsmap) is written to a text file which will be located inside
-            the new_gt_folder directory.
+        Function that converts the tracker data of a dataset into a unified format and writes the data into a file.
+        The actual data for each sequence is written to a text file which will be located inside the
+        new_tracker_folder/split_to_convert/ directory or will be compressed into a zip directory which will be located
+        in the new_tracker_folder directory.
+
         The unified format contains the following fields in this order:
-            timestep(int), id(int), class(int), is_crowd(int), is_truncated(int), is_occluded(int), is_zero_marked(int),
-            height (int), width(int), mask_counts(pycocotools-rle), bbox_x0(float), bbox_y0(float), bbox_x1(float),
-            bbox_y1(float)
+            timestep(int), id(int), class(int), height (int), width(int), mask_counts(pycocotools-rle), bbox_x0(float),
+            bbox_y0(float), bbox_x1(float), bbox_y1(float), confidence_score(float)
         The fields are separated by whitespaces.
         :return: None
         """
@@ -82,33 +77,48 @@ class _BaseTrackerDataConverter(ABC):
                 shutil.rmtree(data_dir)
 
     def _get_sequences(self):
-        seqmap_file = os.path.join(self.gt_dir, 'seqmaps', self.split_to_convert + '.seqmap')
-        if not os.path.isfile(seqmap_file):
-            raise Exception('no seqmap found: ' + seqmap_file)
-        self.seq_list = []
-        self.seq_lengths = {}
-        with open(seqmap_file) as fp:
-            dialect = csv.Sniffer().sniff(fp.readline())
-            fp.seek(0)
-            reader = csv.reader(fp, dialect)
-            for row in reader:
-                if len(row) >= 2:
-                    seq = row[0]
-                    self.seq_list.append(seq)
-                    self.seq_lengths[seq] = int(row[1])
+        """
+        Auxiliary function which reads the seqmap according to the split_to_convert which is located inside the
+        gt_directory/seqmaps folder and extracts the sequence names, lengths and sizes.
+        :return: None
+        """
+        if self.gt_dir:
+            seqmap_file = os.path.join(self.gt_dir, 'seqmaps', self.split_to_convert + '.seqmap')
+            if not os.path.isfile(seqmap_file):
+                raise Exception('no seqmap found: ' + seqmap_file)
+            self.seq_list = []
+            self.seq_lengths = {}
+            self.seq_sizes = {}
+            with open(seqmap_file) as fp:
+                dialect = csv.Sniffer().sniff(fp.readline(), delimiters=' ')
+                fp.seek(0)
+                reader = csv.reader(fp, dialect)
+                for row in reader:
+                    if len(row) >= 4:
+                        seq = row[0]
+                        self.seq_list.append(seq)
+                        self.seq_lengths[seq] = int(row[1])
+                        self.seq_sizes[seq] = (int(row[2]), int(row[3]))
 
     def _get_classes(self):
-        clsmap_file = os.path.join(self.gt_dir, 'clsmaps', self.split_to_convert + '.clsmap')
-        if not os.path.isfile(clsmap_file):
-            raise Exception('No clsmap found: ' + clsmap_file)
-        self.class_name_to_class_id = {}
-        with open(clsmap_file) as fp:
-            dialect = csv.Sniffer().sniff(fp.readline())
-            fp.seek(0)
-            reader = csv.reader(fp, dialect)
-            for row in reader:
-                if len(row) == 2:
-                    self.class_name_to_class_id[row[0]] = int(row[1])
-                elif len(row) >= 3:
-                    cls = ' '.join([elem for elem in row[:-1]])
-                    self.class_name_to_class_id[cls] = int(row[-1])
+        """
+        Auxiliary function which reads the slsmap according to the split_to_convert which is located inside the
+        gt_directory/clsmaps folder and extracts the class names and corresponding IDs.
+        :return: None
+        """
+        if self.gt_dir:
+            clsmap_file = os.path.join(self.gt_dir, 'clsmaps', self.split_to_convert + '.clsmap')
+            if not os.path.isfile(clsmap_file):
+                raise Exception('No clsmap found: ' + clsmap_file)
+            self.class_name_to_class_id = {}
+            with open(clsmap_file) as fp:
+                dialect = csv.Sniffer().sniff(fp.readline())
+                fp.seek(0)
+                reader = csv.reader(fp, dialect)
+                for row in reader:
+                    if len(row) == 2:
+                        self.class_name_to_class_id[row[0]] = int(row[1])
+                    # class names have white spaces
+                    elif len(row) >= 3:
+                        cls = ' '.join([elem for elem in row[:-1]])
+                        self.class_name_to_class_id[cls] = int(row[-1])

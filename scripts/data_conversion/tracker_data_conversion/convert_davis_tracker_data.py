@@ -1,29 +1,30 @@
 import sys
 import os
-import json
-import numpy as np
-from tqdm import tqdm
-from pycocotools import mask as mask_utils
 from _base_tracker_data_converter import _BaseTrackerDataConverter
+from tqdm import tqdm
+import numpy as np
+from glob import glob
+from PIL import Image
+from pycocotools import mask as mask_utils
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '...')))
 
 from hota_metrics import utils  # noqa: E402
 
 
-class BDD100KTrackerConverter(_BaseTrackerDataConverter):
-    """Converter for BDD100K tracker data"""
+class DAVISTrackerConverter(_BaseTrackerDataConverter):
+    """Converter for DAVIS tracker data"""
 
     @staticmethod
     def get_default_config():
         """Default converter config values"""
         code_path = utils.get_code_path()
         default_config = {
-            'ORIGINAL_TRACKER_FOLDER': os.path.join(code_path, 'data/trackers/bdd100k/'),
+            'ORIGINAL_TRACKER_FOLDER': os.path.join(code_path, 'data/trackers/davis/'),
             # Location of original GT data
-            'NEW_TRACKER_FOLDER': os.path.join(code_path, 'data/converted_trackers/bdd100k/'),
+            'NEW_TRACKER_FOLDER': os.path.join(code_path, 'data/converted_trackers/davis'),
             # Location for the converted GT data
-            'GT_FOLDER': os.path.join(code_path, 'data/converted_gt/bdd100k/'),
+            'GT_FOLDER': os.path.join(code_path, 'data/converted_gt/davis'),
             # Location of ground truth data where the seqmap and the clsmap reside
             'SPLIT_TO_CONVERT': 'val',  # Split to convert
             'TRACKER_LIST': None,  # List of trackers to convert, None for all in folder
@@ -34,12 +35,12 @@ class BDD100KTrackerConverter(_BaseTrackerDataConverter):
     @staticmethod
     def get_dataset_name():
         """Returns the name of the associated dataset"""
-        return 'BDD100K'
+        return 'DAVIS'
 
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.tracker_fol = config['ORIGINAL_TRACKER_FOLDER'] + config['SPLIT_TO_CONVERT']
+        self.tracker_fol = os.path.join(config['ORIGINAL_TRACKER_FOLDER'], config['SPLIT_TO_CONVERT'])
         self.new_tracker_folder = os.path.join(config['NEW_TRACKER_FOLDER'], config['SPLIT_TO_CONVERT'])
         if not config['TRACKER_LIST']:
             self.tracker_list = os.listdir(self.tracker_fol)
@@ -59,10 +60,14 @@ class BDD100KTrackerConverter(_BaseTrackerDataConverter):
         # check if all tracker files are present
         for tracker in self.tracker_list:
             for seq in self.seq_list:
-                curr_file = os.path.join(self.tracker_fol, tracker, 'data', seq + '.json')
-                if not os.path.isfile(curr_file):
-                    raise Exception('Tracker file %s not found for tracker %s.'
-                                    % (curr_file, tracker))
+                curr_seq = os.path.join(self.tracker_fol, tracker, 'data', seq)
+                if not os.path.isdir(curr_seq):
+                    raise Exception('Tracker sequence %s not found for tracker %s.'
+                                    % (curr_seq, tracker))
+                if not len(os.listdir(curr_seq)) == self.seq_lengths[seq]:
+                    raise Exception('Sequence length  and tracker data do not match  for sequence %s and tracker %s. '
+                                    'Found %d timesteps instead of %d'
+                                    % (seq, tracker, len(os.listdir(curr_seq)), self.seq_lengths[seq]))
 
         # Get classes
         self._get_classes()
@@ -75,34 +80,35 @@ class BDD100KTrackerConverter(_BaseTrackerDataConverter):
         """
         data = {}
         for seq in tqdm(self.seq_list):
-            # load sequence
-            seq_file = os.path.join(self.tracker_fol, tracker, 'data', seq + '.json')
-            with open(seq_file) as f:
-                tracker_data = json.load(f)
-
-            # order by timestep
-            tracker_data = sorted(tracker_data, key=lambda x: x['index'])
+            seq_dir = os.path.join(self.tracker_fol, tracker, 'data', seq)
             num_timesteps = self.seq_lengths[seq]
+            frames = np.sort(glob(os.path.join(seq_dir, '*.png')))
+
+            # load mask images
+            all_masks = np.zeros((num_timesteps, *self.seq_sizes[seq]))
+            for i, t in enumerate(frames):
+                all_masks[i, ...] = np.array(Image.open(t))
+
+            # split tracks and encode them
+            num_objects = int(np.max(all_masks))
+            tmp = np.ones((num_objects, *all_masks.shape))
+            tmp = tmp * np.arange(1, num_objects + 1)[:, None, None, None]
+            masks = np.array(tmp == all_masks[None, ...]).astype(np.uint8)
+            masks_encoded = {i: mask_utils.encode(np.array(
+                np.transpose(masks[i, :], (1, 2, 0)), order='F')) for i in range(masks.shape[0])}
 
             lines = []
             for t in range(num_timesteps):
-                for label in tracker_data[t]['labels']:
-                    # compute smallest mask which fully covers the bounding box
-                    mask = np.zeros(self.seq_sizes[seq], order='F').astype(np.uint8)
-                    mask[int(np.floor(label['box2d']['y1'])):int(np.ceil(label['box2d']['y2'])+1),
-                         int(np.floor(label['box2d']['x1'])):int(np.ceil(label['box2d']['x2'])+1)] = 1
-                    encoded_mask = mask_utils.encode(mask)
-                    # convert bbox data into x0y0x1y1 format
-                    lines.append('%d %d %d %d %d %s %f %f %f %f %f\n'
-                                 % (t, int(label['id']), self.class_name_to_class_id[label['category']],
-                                    encoded_mask['size'][0], encoded_mask['size'][1], encoded_mask['counts'],
-                                    label['box2d']['x1'], label['box2d']['y1'], label['box2d']['x2'],
-                                    label['box2d']['y2'], label['score']))
+                to_append = ['%d %d %d %d %d %s %f %f %f %f %f\n'
+                             % (t, i, 1, masks_encoded[i][t]['size'][0], masks_encoded[i][t]['size'][1],
+                                masks_encoded[i][t]['counts'], 0, 0, 0, 0, 1)
+                             for i in masks_encoded.keys()]
+                lines += to_append
             data[seq] = lines
         return data
 
 
 if __name__ == '__main__':
-    default_conf = BDD100KTrackerConverter.get_default_config()
+    default_conf = DAVISTrackerConverter.get_default_config()
     conf = utils.update_config(default_conf)
-    BDD100KTrackerConverter(conf).convert()
+    DAVISTrackerConverter(conf).convert()

@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '...'
 from hota_metrics import utils  # noqa: E402
 
 
-class MOTChallengeMOTSTrackerConverter(_BaseTrackerDataConverter):
+class MOTSChallengeTrackerConverter(_BaseTrackerDataConverter):
     """Converter for MOTChallengeMOTS tracker data"""
 
     @staticmethod
@@ -88,6 +88,6 @@ class MOTChallengeMOTSTrackerConverter(_BaseTrackerDataConverter):
 
 
 if __name__ == '__main__':
-    default_conf = MOTChallengeMOTSTrackerConverter.get_default_config()
+    default_conf = MOTSChallengeTrackerConverter.get_default_config()
     conf = utils.update_config(default_conf)
-    MOTChallengeMOTSTrackerConverter(conf).convert()
+    MOTSChallengeTrackerConverter(conf).convert()

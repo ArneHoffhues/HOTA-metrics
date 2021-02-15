@@ -72,7 +72,7 @@ class KittiMOTSTrackerConverter(_BaseTrackerDataConverter):
         """
         data = {}
         for seq in self.seq_list:
-            # load sequence
+            # sequence path
             file = os.path.join(self.tracker_fol, tracker, 'data', seq + '.txt')
 
             lines = []
