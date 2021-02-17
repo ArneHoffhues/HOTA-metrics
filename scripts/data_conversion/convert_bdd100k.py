@@ -75,10 +75,10 @@ class BDD100KConverter(_BaseDatasetConverter):
                         is_crowd = 0
                         is_truncated = 0
                         is_occluded = 0
-                    lines.append('%d %d %d %d %d %d %d %d %d %s %f %f %f %f\n'
-                                 % (t, int(label['id']), self.class_name_to_class_id[label['category']], is_crowd,
-                                    is_truncated, is_occluded, 0, 0, 0, 'None', label['box2d']['x1'],
-                                    label['box2d']['y1'], label['box2d']['x2'], label['box2d']['y2']))
+                    lines.append('%d %d %d %d %d %s %f %f %f %f %d %d %d %d\n'
+                                 % (t, int(label['id']), self.class_name_to_class_id[label['category']], 0, 0, 'None',
+                                    label['box2d']['x1'], label['box2d']['y1'], label['box2d']['x2'], label['box2d']['y2'],
+                                    is_crowd, is_truncated, is_occluded, 0))
             data[seq] = lines
         return data
 

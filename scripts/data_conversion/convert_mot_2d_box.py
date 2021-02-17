@@ -38,7 +38,7 @@ class MOTChallenge2DBoxConverter(_BaseDatasetConverter):
         self.gt_fol = config['ORIGINAL_GT_FOLDER'] + self.gt_set
         self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
-        self.split_to_convert = config['SPLIT_TO_CONVERT']
+        self.split_to_convert = self.gt_set
         self.class_name_to_class_id = {'pedestrian': 1, 'person_on_vehicle': 2, 'car': 3, 'bicycle': 4, 'motorbike': 5,
                                        'non_mot_vehicle': 6, 'static_person': 7, 'distractor': 8, 'occluder': 9,
                                        'occluder_on_ground': 10, 'occluder_full': 11, 'reflection': 12, 'crowd': 13}
@@ -85,9 +85,9 @@ class MOTChallenge2DBoxConverter(_BaseDatasetConverter):
                 reader = csv.reader(fp, dialect)
                 # convert box format from xywh to x0y0x1y1
                 for row in reader:
-                    lines.append('%d %s %s %d %d %d %s %d %d %s %f %f %f %f\n'
-                                 % (int(row[0]) - 1, row[1], row[7], 0, 0, 0, row[6], 0, 0, 'None', float(row[2]),
-                                    float(row[3]), float(row[2]) + float(row[4]), float(row[3]) + float(row[5])))
+                    lines.append('%d %s %s %d %d %s %f %f %f %f %d %d %d %s\n'
+                                 % (int(row[0]) - 1, row[1], row[7], 0, 0, 'None', float(row[2]), float(row[3]),
+                                    float(row[2]) + float(row[4]), float(row[3]) + float(row[5]), 0, 0, 0, row[6]))
             data[seq] = lines
         return data
 

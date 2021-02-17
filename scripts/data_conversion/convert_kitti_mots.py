@@ -77,8 +77,8 @@ class KittiMOTSConverter(_BaseDatasetConverter):
                 for row in reader:
                     if seq not in self.seq_sizes:
                         self.seq_sizes[seq] = (int(row[3]), int(row[4]))
-                    lines.append('%s %s %s %d %d %d %d %s %s %s %f %f %f %f\n'
-                                 % (row[0], row[1], row[2], 0, 0, 0, 0, row[3], row[4], row[5], 0, 0, 0, 0))
+                    lines.append('%s %s %s %s %s %s %f %f %f %f %d %d %d %d\n'
+                                 % (row[0], row[1], row[2], row[3], row[4], row[5], 0, 0, 0, 0, 0, 0, 0, 0,))
             data[seq] = lines
         return data
 

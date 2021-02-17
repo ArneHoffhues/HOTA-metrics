@@ -73,9 +73,9 @@ class YouTubeVISConverter(_BaseDatasetConverter):
                         h = ann['height']
                         w = ann['width']
                         mask_encoded = mask_utils.frPyObjects(ann['segmentations'][t], h, w)
-                        lines.append('%d %d %d %d %d %d %d %d %d %s %d %d %d %d\n'
-                                     % (t, ann['id'], ann['category_id'], ann['iscrowd'], 0, 0, 0, h, w,
-                                        mask_encoded['counts'], 0, 0, 0, 0))
+                        lines.append('%d %d %d %d %d %s %d %d %d %d %d %d %d %d\n'
+                                     % (t, ann['id'], ann['category_id'], h, w, mask_encoded['counts'], 0, 0, 0, 0,
+                                        ann['iscrowd'], 0, 0, 0))
             data[seq] = lines
         return data
 

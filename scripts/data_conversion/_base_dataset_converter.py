@@ -50,9 +50,9 @@ class _BaseDatasetConverter(ABC):
         3)  The file containing the class information (clsmap) is written to a text file which will be located inside
             the new_gt_folder directory.
         The unified format contains the following fields in this order:
-            timestep(int), id(int), class(int), is_crowd(int), is_truncated(int), is_occluded(int), is_zero_marked(int),
-            height (int), width(int), mask_counts(pycocotools-rle), bbox_x0(float), bbox_y0(float), bbox_x1(float),
-            bbox_y1(float)
+            timestep(int), id(int), class(int), height (int), width(int), mask_counts(pycocotools-rle), bbox_x0(float),
+            bbox_y0(float), bbox_x1(float), bbox_y1(float), is_crowd(int), is_truncated(int), is_occluded(int),
+            is_zero_marked(int)
         The fields are separated by whitespaces.
         :return: None
         """

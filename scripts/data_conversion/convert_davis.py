@@ -93,14 +93,14 @@ class DAVISConverter(_BaseDatasetConverter):
 
             lines = []
             for t in range(num_timesteps):
-                to_append = ['%d %d %d %d %d %d %d %d %d %s %f %f %f %f\n'
-                             % (t, i, 1, 0, 0, 0, 0, masks_encoded[i][t]['size'][0], masks_encoded[i][t]['size'][1],
-                                masks_encoded[i][t]['counts'], 0, 0, 0, 0)
+                to_append = ['%d %d %d %d %d %s %f %f %f %f %d %d %d %d \n'
+                             % (t, i, 1, masks_encoded[i][t]['size'][0], masks_encoded[i][t]['size'][1],
+                                masks_encoded[i][t]['counts'], 0, 0, 0, 0, 0, 0, 0, 0)
                              for i in masks_encoded.keys()]
                 lines += to_append
-                lines += ['%d %d %d %d %d %d %d %d %d %s %f %f %f %f\n'
-                          % (t, -1, 2, 0, 0, 0, 0, masks_void[t]['size'][0], masks_void[t]['size'][1],
-                             masks_void[t]['counts'], 0, 0, 0, 0)]
+                lines += ['%d %d %d %d %d %s %f %f %f %f %d %d %d %d \n'
+                          % (t, -1, 2, masks_void[t]['size'][0], masks_void[t]['size'][1],
+                             masks_void[t]['counts'], 0, 0, 0, 0, 0, 0, 0, 0)]
             data[seq] = lines
         return data
 

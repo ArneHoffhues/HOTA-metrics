@@ -57,7 +57,7 @@ class Kitti2DBoxConverter(_BaseDatasetConverter):
                     seq = row[0]
                     self.seq_list.append(seq)
                     self.seq_lengths[seq] = int(row[3])
-                    # no sequence size informaton
+                    # no sequence size informaton for Kitti
                     self.seq_sizes[seq] = (0, 0)
                     curr_file = os.path.join(self.gt_fol, 'label_02', seq + '.txt')
                     if not os.path.isfile(curr_file):
@@ -80,9 +80,9 @@ class Kitti2DBoxConverter(_BaseDatasetConverter):
                 fp.seek(0)
                 reader = csv.reader(fp, dialect)
                 for row in reader:
-                    lines.append('%s %s %d %d %s %s %d %d %d %s %s %s %s %s\n'
-                                 % (row[0], row[1], self.class_name_to_class_id[row[2].lower()], 0, row[3], row[4],
-                                    0, 0, 0, 'None', row[6], row[7], row[8], row[9]))
+                    lines.append('%s %s %d %d %d %s %s %s %s %s %d %s %s %d\n'
+                                 % (row[0], row[1], self.class_name_to_class_id[row[2].lower()], 0, 0, 'None', row[6],
+                                    row[7], row[8], row[9], 0, row[3], row[4], 0))
             data[seq] = lines
         return data
 
