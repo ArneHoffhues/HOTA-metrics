@@ -52,7 +52,7 @@ class MOTChallenge2DBoxTrackerConverter(_BaseTrackerDataConverter):
                                                 % (tracker, self.tracker_fol)
             self.tracker_list = config['TRACKER_LIST']
         self.gt_dir = config['GT_FOLDER']
-        self.split_to_convert = config['SPLIT_TO_CONVERT']
+        self.split_to_convert = config['BENCHMARK'] + '-' + config['SPLIT_TO_CONVERT']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
 
         # Get sequences
