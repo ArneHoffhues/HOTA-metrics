@@ -16,10 +16,11 @@ class KittiMOTSConverter(_BaseDatasetConverter):
         """Default converter config values"""
         code_path = utils.get_code_path()
         default_config = {
-            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/kitti/kitti_mots'),  # Location of original GT data
+            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/kitti/kitti_mots_train'),
+            # Location of original GT data
             'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/kitti/kitti_mots'),
             # Location for the converted GT data
-            'SPLIT_TO_CONVERT': 'val',  # Split to convert
+            'SPLIT_TO_CONVERT': 'train',  # Split to convert
             'OUTPUT_AS_ZIP': False  # Whether the converted output should be zip compressed
         }
         return default_config
@@ -36,13 +37,13 @@ class KittiMOTSConverter(_BaseDatasetConverter):
         self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
         self.split_to_convert = config['SPLIT_TO_CONVERT']
-        self.class_name_to_class_id = {'cars': 1, 'pedestrians': 2, 'ignore': 10}
+        self.class_name_to_class_id = {'car': 1, 'pedestrian': 2, 'ignore': 10}
 
         # Get sequences to convert and check gt files exist
         self.seq_list = []
         self.seq_lengths = {}
         self.seq_sizes = {}
-        seqmap_name = config['SPLIT_TO_CONVERT'] + ".seqmap"
+        seqmap_name = "evaluate_mots.seqmap." + config['SPLIT_TO_CONVERT']
         seqmap_file = os.path.join(self.gt_fol, seqmap_name)
         assert os.path.isfile(seqmap_file), 'no seqmap %s found in %s' % (seqmap_name, self.gt_fol)
 
@@ -55,7 +56,7 @@ class KittiMOTSConverter(_BaseDatasetConverter):
                     seq = "%04d" % int(row[0])
                     self.seq_list.append(seq)
                     self.seq_lengths[seq] = int(row[3]) + 1
-                    assert os.path.isfile(os.path.join(self.gt_fol, 'instances_txt', seq + '.txt')), \
+                    assert os.path.isfile(os.path.join(self.gt_fol, 'label_02', seq + '.txt')), \
                         'GT file %s.txt not found in %s' % (seq, os.path.join(self.gt_fol, 'instances_txt'))
 
     def _prepare_data(self):
@@ -67,7 +68,7 @@ class KittiMOTSConverter(_BaseDatasetConverter):
         data = {}
         for seq in self.seq_list:
             # load sequences
-            file = os.path.join(self.gt_fol, 'instances_txt', seq + '.txt')
+            file = os.path.join(self.gt_fol, 'label_02', seq + '.txt')
 
             lines = []
             with open(file) as fp:
