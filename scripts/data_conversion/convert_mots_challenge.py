@@ -18,7 +18,7 @@ class MOTSChallengeConverter(_BaseDatasetConverter):
         code_path = utils.get_code_path()
         default_config = {
             'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/mot_challenge/'),  # Location of original GT data
-            'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/mot_challenge/mot_challenge_mots'),
+            'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/mot_challenge/mots_challenge'),
             # Location for the converted GT data
             'SPLIT_TO_CONVERT': 'train',  # Split to convert
             'OUTPUT_AS_ZIP': False  # Whether the converted output should be zip compressed
@@ -38,7 +38,7 @@ class MOTSChallengeConverter(_BaseDatasetConverter):
         self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
         self.split_to_convert = config['SPLIT_TO_CONVERT']
-        self.class_name_to_class_id = {'pedestrians': 2, 'ignore': 10}
+        self.class_name_to_class_id = {'pedestrian': 2, 'ignore': 10}
 
         # Get sequences to convert and check gt files exist
         self.seq_list = []
