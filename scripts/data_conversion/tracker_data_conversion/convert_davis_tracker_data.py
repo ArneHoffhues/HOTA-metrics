@@ -5,7 +5,7 @@ from tqdm import tqdm
 import numpy as np
 from glob import glob
 from PIL import Image
-from pycocotools import mask as mask_utils
+from pycocotools.mask import encode, decode
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '...')))
 
@@ -20,7 +20,7 @@ class DAVISTrackerConverter(_BaseTrackerDataConverter):
         """Default converter config values"""
         code_path = utils.get_code_path()
         default_config = {
-            'ORIGINAL_TRACKER_FOLDER': os.path.join(code_path, 'data/trackers/davis/'),
+            'ORIGINAL_TRACKER_FOLDER': os.path.join(code_path, 'data/trackers/davis/davis_unsupervised_val'),
             # Location of original GT data
             'NEW_TRACKER_FOLDER': os.path.join(code_path, 'data/converted_trackers/davis'),
             # Location for the converted GT data
@@ -40,7 +40,7 @@ class DAVISTrackerConverter(_BaseTrackerDataConverter):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.tracker_fol = os.path.join(config['ORIGINAL_TRACKER_FOLDER'], config['SPLIT_TO_CONVERT'])
+        self.tracker_fol = config['ORIGINAL_TRACKER_FOLDER']
         self.new_tracker_folder = os.path.join(config['NEW_TRACKER_FOLDER'], config['SPLIT_TO_CONVERT'])
         if not config['TRACKER_LIST']:
             self.tracker_list = os.listdir(self.tracker_fol)
@@ -94,14 +94,14 @@ class DAVISTrackerConverter(_BaseTrackerDataConverter):
             tmp = np.ones((num_objects, *all_masks.shape))
             tmp = tmp * np.arange(1, num_objects + 1)[:, None, None, None]
             masks = np.array(tmp == all_masks[None, ...]).astype(np.uint8)
-            masks_encoded = {i: mask_utils.encode(np.array(
-                np.transpose(masks[i, :], (1, 2, 0)), order='F')) for i in range(masks.shape[0])}
+            masks_encoded = {i: encode(np.array(np.transpose(masks[i, :], (1, 2, 0)), order='F'))
+                             for i in range(masks.shape[0])}
 
             lines = []
             for t in range(num_timesteps):
                 to_append = ['%d %d %d %d %d %s %f %f %f %f %f\n'
                              % (t, i, 1, masks_encoded[i][t]['size'][0], masks_encoded[i][t]['size'][1],
-                                masks_encoded[i][t]['counts'], 0, 0, 0, 0, 1)
+                                masks_encoded[i][t]['counts'].decode("utf-8"), 0, 0, 0, 0, 1)
                              for i in masks_encoded.keys()]
                 lines += to_append
             data[seq] = lines

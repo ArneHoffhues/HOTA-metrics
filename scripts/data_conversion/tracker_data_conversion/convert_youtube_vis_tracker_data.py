@@ -17,11 +17,12 @@ class YouTubeVISTrackerConverter(_BaseTrackerDataConverter):
         """Default converter config values"""
         code_path = utils.get_code_path()
         default_config = {
-            'ORIGINAL_TRACKER_FOLDER': os.path.join(code_path, 'data/trackers/youtube_vis/'),
+            'ORIGINAL_TRACKER_FOLDER': os.path.join(code_path, 'data/trackers/youtube_vis/youtube_vis_training'),
             # Location of original GT data
             'NEW_TRACKER_FOLDER': os.path.join(code_path, 'data/converted_trackers/youtube_vis/'),
             # Location for the converted GT data
-            'GT_DATA_LOC': os.path.join(code_path, 'data/gt/youtube_vis/'),  # Folder of the original gt data
+            'GT_DATA_LOC': os.path.join(code_path, 'data/gt/youtube_vis/youtube_vis_training'),
+            # Folder of the original gt data
             'SPLIT_TO_CONVERT': 'training',  # Split to convert
             'TRACKER_LIST': None,  # List of trackers to convert, None for all in folder
             'OUTPUT_AS_ZIP': False  # Whether the converted output should be zip compressed
@@ -36,9 +37,9 @@ class YouTubeVISTrackerConverter(_BaseTrackerDataConverter):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.tracker_fol = config['ORIGINAL_TRACKER_FOLDER'] + config['SPLIT_TO_CONVERT']
+        self.tracker_fol = config['ORIGINAL_TRACKER_FOLDER']
         self.new_tracker_folder = os.path.join(config['NEW_TRACKER_FOLDER'], config['SPLIT_TO_CONVERT'])
-        self.orig_gt_folder = os.path.join(config['GT_DATA_LOC'], config['SPLIT_TO_CONVERT'])
+        self.orig_gt_folder = config['GT_DATA_LOC']
         if not config['TRACKER_LIST']:
             self.tracker_list = os.listdir(self.tracker_fol)
         else:
@@ -66,7 +67,7 @@ class YouTubeVISTrackerConverter(_BaseTrackerDataConverter):
 
         # check if all tracker files are present
         for tracker in self.tracker_list:
-            tracker_dir_files = glob(os.path.join(self.tracker_fol, tracker, '*.json'))
+            tracker_dir_files = glob(os.path.join(self.tracker_fol, tracker, 'data', '*.json'))
             assert len(tracker_dir_files) == 1, os.path.join(self.tracker_fol,tracker) + \
                                                 ' does not contain exactly one json file.'
 
@@ -80,7 +81,7 @@ class YouTubeVISTrackerConverter(_BaseTrackerDataConverter):
         data = {}
 
         # load tracker data
-        tracker_dir_files = glob(os.path.join(self.tracker_fol, tracker, '*.json'))
+        tracker_dir_files = glob(os.path.join(self.tracker_fol, tracker, 'data', '*.json'))
 
         with open(tracker_dir_files[0]) as f:
             tracker_data = json.load(f)
