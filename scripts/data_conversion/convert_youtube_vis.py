@@ -2,7 +2,7 @@ import sys
 import os
 from glob import glob
 import json
-from pycocotools import mask as mask_utils
+from pycocotools.mask import frPyObjects, decode
 from _base_dataset_converter import _BaseDatasetConverter
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '...')))
@@ -18,7 +18,8 @@ class YouTubeVISConverter(_BaseDatasetConverter):
         """Default converter config values"""
         code_path = utils.get_code_path()
         default_config = {
-            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/youtube_vis/'),  # Location of original GT data
+            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/youtube_vis/youtube_vis_training'),
+            # Location of original GT data
             'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/youtube_vis/'),
             # Location for the converted GT data
             'SPLIT_TO_CONVERT': 'training',  # Split to convert
@@ -34,7 +35,7 @@ class YouTubeVISConverter(_BaseDatasetConverter):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.gt_fol = os.path.join(config['ORIGINAL_GT_FOLDER'], config['SPLIT_TO_CONVERT'])
+        self.gt_fol = config['ORIGINAL_GT_FOLDER']
         self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
         self.split_to_convert = config['SPLIT_TO_CONVERT']
@@ -72,10 +73,10 @@ class YouTubeVISConverter(_BaseDatasetConverter):
                     if ann['segmentations'][t]:
                         h = ann['height']
                         w = ann['width']
-                        mask_encoded = mask_utils.frPyObjects(ann['segmentations'][t], h, w)
+                        mask_encoded = frPyObjects(ann['segmentations'][t], h, w)
                         lines.append('%d %d %d %d %d %s %d %d %d %d %d %d %d %d\n'
-                                     % (t, ann['id'], ann['category_id'], h, w, mask_encoded['counts'], 0, 0, 0, 0,
-                                        ann['iscrowd'], 0, 0, 0))
+                                     % (t, ann['id'], ann['category_id'], h, w, mask_encoded['counts'].decode("utf-8"),
+                                        0, 0, 0, 0, ann['iscrowd'], 0, 0, 0))
             data[seq] = lines
         return data
 

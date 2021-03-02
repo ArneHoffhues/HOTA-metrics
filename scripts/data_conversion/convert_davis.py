@@ -4,7 +4,7 @@ import csv
 from glob import glob
 import numpy as np
 from PIL import Image
-from pycocotools import mask as mask_utils
+from pycocotools.mask import encode, decode
 from tqdm import tqdm
 from _base_dataset_converter import _BaseDatasetConverter
 
@@ -21,7 +21,8 @@ class DAVISConverter(_BaseDatasetConverter):
         """Default converter config values"""
         code_path = utils.get_code_path()
         default_config = {
-            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/davis/'),  # Location of original GT data
+            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/davis/davis_unsupervised_val'),
+            # Location of original GT data
             'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/davis/'),  # Location for the converted GT data
             'SPLIT_TO_CONVERT': 'val',  # Split to convert
             'OUTPUT_AS_ZIP': False  # Whether the converted output should be zip compressed
@@ -36,29 +37,30 @@ class DAVISConverter(_BaseDatasetConverter):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.gt_fol = os.path.join(config['ORIGINAL_GT_FOLDER'], 'Annotations_unsupervised/480p')
+        self.gt_fol = config['ORIGINAL_GT_FOLDER']
         self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
         self.split_to_convert = config['SPLIT_TO_CONVERT']
         self.class_name_to_class_id = {'general': 1, 'void': 2}
 
         # Get sequences to convert and check gt files exist
-        self.seq_list = []
-        self.seq_lengths = {}
+        self.seq_list = os.listdir(self.gt_fol)
+        self.seq_lengths = {seq: len(os.listdir(os.path.join(self.gt_fol, seq))) for seq in self.seq_list}
         self.seq_sizes = {}
-        seqmap_file = os.path.join(config['ORIGINAL_GT_FOLDER'], 'ImageSets/2017', config['SPLIT_TO_CONVERT'] + '.txt')
-        assert os.path.isfile(seqmap_file), 'no seqmap found: ' + seqmap_file
-        with open(seqmap_file) as fp:
-            reader = csv.reader(fp)
-            for i, row in enumerate(reader):
-                if row[0] == '':
-                    continue
-                seq = row[0]
-                self.seq_list.append(seq)
-                curr_dir = os.path.join(self.gt_fol, seq)
-                assert os.path.isdir(curr_dir), 'GT directory not found: ' + curr_dir
-                curr_timesteps = len(glob(os.path.join(curr_dir, '*.png')))
-                self.seq_lengths[seq] = curr_timesteps
+        # seqmap_file = os.path.join(config['ORIGINAL_GT_FOLDER'], 'ImageSets/2017', config['SPLIT_TO_CONVERT'] + '.txt')
+        # assert os.path.isfile(seqmap_file), 'no seqmap found: ' + seqmap_file
+        # with open(seqmap_file) as fp:
+        #     reader = csv.reader(fp)
+        #     for i, row in enumerate(reader):
+        #         if row[0] == '':
+        #             continue
+        #         seq = row[0]
+        #         self.seq_list.append(seq)
+        #         curr_dir = os.path.join(self.gt_fol, seq)
+        #         assert os.path.isdir(curr_dir), 'GT directory not found: ' + curr_dir
+        #         curr_timesteps = len(glob(os.path.join(curr_dir, '*.png')))
+        #         self.seq_lengths[seq] = curr_timesteps
+
 
     def _prepare_data(self):
         """
@@ -81,26 +83,26 @@ class DAVISConverter(_BaseDatasetConverter):
 
             # determine and encode void masks
             masks_void = all_masks == 255
-            masks_void = mask_utils.encode(np.array(np.transpose(masks_void, (1, 2, 0)), order='F').astype(np.uint8))
+            masks_void = encode(np.array(np.transpose(masks_void, (1, 2, 0)), order='F').astype(np.uint8))
 
             # split tracks and encode them
             num_objects = int(np.max(all_masks))
             tmp = np.ones((num_objects, *all_masks.shape))
             tmp = tmp * np.arange(1, num_objects + 1)[:, None, None, None]
             masks = np.array(tmp == all_masks[None, ...]).astype(np.uint8)
-            masks_encoded = {i: mask_utils.encode(np.array(
-                np.transpose(masks[i, :], (1, 2, 0)), order='F')) for i in range(masks.shape[0])}
+            masks_encoded = {i: encode(np.array(np.transpose(masks[i, :], (1, 2, 0)), order='F'))
+                             for i in range(masks.shape[0])}
 
             lines = []
             for t in range(num_timesteps):
                 to_append = ['%d %d %d %d %d %s %f %f %f %f %d %d %d %d \n'
                              % (t, i, 1, masks_encoded[i][t]['size'][0], masks_encoded[i][t]['size'][1],
-                                masks_encoded[i][t]['counts'], 0, 0, 0, 0, 0, 0, 0, 0)
+                                masks_encoded[i][t]['counts'].decode("utf-8"), 0, 0, 0, 0, 0, 0, 0, 0)
                              for i in masks_encoded.keys()]
                 lines += to_append
                 lines += ['%d %d %d %d %d %s %f %f %f %f %d %d %d %d \n'
                           % (t, -1, 2, masks_void[t]['size'][0], masks_void[t]['size'][1],
-                             masks_void[t]['counts'], 0, 0, 0, 0, 0, 0, 0, 0)]
+                             masks_void[t]['counts'].decode("utf-8"), 0, 0, 0, 0, 0, 0, 0, 0)]
             data[seq] = lines
         return data
 
