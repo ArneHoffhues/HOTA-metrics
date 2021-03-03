@@ -19,7 +19,7 @@ class BDD100KTrackerConverter(_BaseTrackerDataConverter):
         """Default converter config values"""
         code_path = utils.get_code_path()
         default_config = {
-            'ORIGINAL_TRACKER_FOLDER': os.path.join(code_path, 'data/trackers/bdd100k/'),
+            'ORIGINAL_TRACKER_FOLDER': os.path.join(code_path, 'data/trackers/bdd100k/bdd100k_val/'),
             # Location of original GT data
             'NEW_TRACKER_FOLDER': os.path.join(code_path, 'data/converted_trackers/bdd100k/'),
             # Location for the converted GT data
@@ -39,7 +39,7 @@ class BDD100KTrackerConverter(_BaseTrackerDataConverter):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.tracker_fol = config['ORIGINAL_TRACKER_FOLDER'] + config['SPLIT_TO_CONVERT']
+        self.tracker_fol = config['ORIGINAL_TRACKER_FOLDER']
         self.new_tracker_folder = os.path.join(config['NEW_TRACKER_FOLDER'], config['SPLIT_TO_CONVERT'])
         if not config['TRACKER_LIST']:
             self.tracker_list = os.listdir(self.tracker_fol)
@@ -93,7 +93,7 @@ class BDD100KTrackerConverter(_BaseTrackerDataConverter):
                          int(np.floor(label['box2d']['x1'])):int(np.ceil(label['box2d']['x2'])+1)] = 1
                     encoded_mask = mask_utils.encode(mask)
                     # convert bbox data into x0y0x1y1 format
-                    lines.append('%d %d %d %d %d %s %f %f %f %f %f\n'
+                    lines.append('%d %d %d %d %d %s %.13f %.13f %.13f %.13f %.15f\n'
                                  % (t, int(label['id']), self.class_name_to_class_id[label['category']],
                                     encoded_mask['size'][0], encoded_mask['size'][1], encoded_mask['counts'],
                                     label['box2d']['x1'], label['box2d']['y1'], label['box2d']['x2'],
