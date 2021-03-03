@@ -17,7 +17,8 @@ class BDD100KConverter(_BaseDatasetConverter):
         """Default converter config values"""
         code_path = utils.get_code_path()
         default_config = {
-            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/bdd100k/'),  # Location of original GT data
+            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/bdd100k/bdd100k_val/'),
+            # Location of original GT data
             'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/bdd100k/'),
             # Location for the converted GT data
             'SPLIT_TO_CONVERT': 'val',  # Split to convert
@@ -33,7 +34,7 @@ class BDD100KConverter(_BaseDatasetConverter):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.gt_fol = config['ORIGINAL_GT_FOLDER'] + config['SPLIT_TO_CONVERT']
+        self.gt_fol = config['ORIGINAL_GT_FOLDER']
         self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
         self.split_to_convert = config['SPLIT_TO_CONVERT']
@@ -75,7 +76,7 @@ class BDD100KConverter(_BaseDatasetConverter):
                         is_crowd = 0
                         is_truncated = 0
                         is_occluded = 0
-                    lines.append('%d %d %d %d %d %s %f %f %f %f %d %d %d %d\n'
+                    lines.append('%d %d %d %d %d %s %.13f %.13f %.13f %.13f %d %d %d %d\n'
                                  % (t, int(label['id']), self.class_name_to_class_id[label['category']], 0, 0, 'None',
                                     label['box2d']['x1'], label['box2d']['y1'], label['box2d']['x2'], label['box2d']['y2'],
                                     is_crowd, is_truncated, is_occluded, 0))
