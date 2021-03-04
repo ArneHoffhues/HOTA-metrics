@@ -17,13 +17,13 @@ class YouTubeVISTrackerConverter(_BaseTrackerDataConverter):
         """Default converter config values"""
         code_path = utils.get_code_path()
         default_config = {
-            'ORIGINAL_TRACKER_FOLDER': os.path.join(code_path, 'data/trackers/youtube_vis/youtube_vis_training'),
+            'ORIGINAL_TRACKER_FOLDER': os.path.join(code_path, 'data/trackers/youtube_vis/'),
             # Location of original GT data
             'NEW_TRACKER_FOLDER': os.path.join(code_path, 'data/converted_trackers/youtube_vis/'),
             # Location for the converted GT data
-            'GT_DATA_LOC': os.path.join(code_path, 'data/gt/youtube_vis/youtube_vis_training'),
+            'GT_DATA_LOC': os.path.join(code_path, 'data/gt/youtube_vis/'),
             # Folder of the original gt data
-            'SPLIT_TO_CONVERT': 'training',  # Split to convert
+            'SPLIT_TO_CONVERT': 'train_sub_split',  # Split to convert
             'TRACKER_LIST': None,  # List of trackers to convert, None for all in folder
             'OUTPUT_AS_ZIP': False  # Whether the converted output should be zip compressed
         }
@@ -37,9 +37,9 @@ class YouTubeVISTrackerConverter(_BaseTrackerDataConverter):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.tracker_fol = config['ORIGINAL_TRACKER_FOLDER']
+        self.tracker_fol = config['ORIGINAL_TRACKER_FOLDER'] + 'youtube_vis_' + config['SPLIT_TO_CONVERT']
         self.new_tracker_folder = os.path.join(config['NEW_TRACKER_FOLDER'], config['SPLIT_TO_CONVERT'])
-        self.orig_gt_folder = config['GT_DATA_LOC']
+        self.orig_gt_folder = config['GT_DATA_LOC'] + 'youtube_vis_' + config['SPLIT_TO_CONVERT']
         if not config['TRACKER_LIST']:
             self.tracker_list = os.listdir(self.tracker_fol)
         else:
@@ -101,7 +101,7 @@ class YouTubeVISTrackerConverter(_BaseTrackerDataConverter):
                 for ann in seq_annotations:
                     if ann['segmentations'][t]:
                         mask = ann['segmentations'][t]
-                        lines.append('%d %d %d %d %d %s %f %f %f %f %f\n'
+                        lines.append('%d %d %d %d %d %s %f %f %f %f %.20f\n'
                                      % (t, ann['id'], ann['category_id'], mask['size'][0], mask['size'][1],
                                         mask['counts'], 0, 0, 0, 0, ann['score']))
             data[seq] = lines
