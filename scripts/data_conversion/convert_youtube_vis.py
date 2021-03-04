@@ -18,11 +18,11 @@ class YouTubeVISConverter(_BaseDatasetConverter):
         """Default converter config values"""
         code_path = utils.get_code_path()
         default_config = {
-            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/youtube_vis/youtube_vis_training'),
+            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/youtube_vis/'),
             # Location of original GT data
             'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/youtube_vis/'),
             # Location for the converted GT data
-            'SPLIT_TO_CONVERT': 'training',  # Split to convert
+            'SPLIT_TO_CONVERT': 'train_sub_split',  # Split to convert
             'OUTPUT_AS_ZIP': False  # Whether the converted output should be zip compressed
         }
         return default_config
@@ -35,7 +35,7 @@ class YouTubeVISConverter(_BaseDatasetConverter):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.gt_fol = config['ORIGINAL_GT_FOLDER']
+        self.gt_fol = config['ORIGINAL_GT_FOLDER'] + 'youtube_vis_' + self.config['SPLIT_TO_CONVERT']
         self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
         self.split_to_convert = config['SPLIT_TO_CONVERT']
