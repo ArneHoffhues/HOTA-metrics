@@ -41,9 +41,9 @@ class TAOTrackerConverter(_BaseTrackerDataConverter):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.tracker_fol = os.path.join(config['ORIGINAL_TRACKER_FOLDER'], config['SPLIT_TO_CONVERT'])
+        self.tracker_fol = os.path.join(config['ORIGINAL_TRACKER_FOLDER'], 'tao_' + config['SPLIT_TO_CONVERT'])
         self.new_tracker_folder = os.path.join(config['NEW_TRACKER_FOLDER'], config['SPLIT_TO_CONVERT'])
-        self.orig_gt_folder = os.path.join(config['GT_DATA_LOC'], config['SPLIT_TO_CONVERT'])
+        self.orig_gt_folder = os.path.join(config['GT_DATA_LOC'], 'tao_' + config['SPLIT_TO_CONVERT'])
         if not config['TRACKER_LIST']:
             self.tracker_list = os.listdir(self.tracker_fol)
         else:
@@ -76,7 +76,7 @@ class TAOTrackerConverter(_BaseTrackerDataConverter):
 
         # check if all tracker files are present
         for tracker in self.tracker_list:
-            tracker_dir_files = glob(os.path.join(self.tracker_fol, tracker, '*.json'))
+            tracker_dir_files = glob(os.path.join(self.tracker_fol, tracker, 'data', '*.json'))
             assert len(tracker_dir_files) == 1, os.path.join(self.tracker_fol,tracker) + \
                                                 ' does not contain exactly one json file.'
 
@@ -90,7 +90,7 @@ class TAOTrackerConverter(_BaseTrackerDataConverter):
         data = {}
 
         # load tracker data
-        tracker_dir_files = glob(os.path.join(self.tracker_fol, tracker, '*.json'))
+        tracker_dir_files = glob(os.path.join(self.tracker_fol, tracker,'data', '*.json'))
 
         with open(tracker_dir_files[0]) as f:
             tracker_data = json.load(f)
@@ -110,16 +110,22 @@ class TAOTrackerConverter(_BaseTrackerDataConverter):
                 # determine annotations for given timestep
                 timestep_annotations = [ann for ann in seq_annotations
                                         if ann['image_id'] == self.vids_to_images[seq_id][t]['id']]
+                print(timestep_annotations)
+                exit()
                 for ann in timestep_annotations:
                     # compute smallest mask which fully covers the bounding box
-                    mask = np.zeros(self.seq_sizes[seq_id], order='F').astype(np.uint8)
-                    mask[int(np.floor(ann['bbox'][1])):int(np.ceil(ann['bbox'][1] + ann['bbox'][3])+1),
-                    int(np.floor(ann['bbox'][0])):int(np.ceil(ann['bbox'][0] + ann['bbox'][2])+1)] = 1
-                    encoded_mask = mask_utils.encode(mask)
-                    # convert box format from xywh to x0y0x1y1
-                    lines.append('%d %d %d %d %d %s %f %f %f %f %f\n'
-                                 % (t, ann['track_id'], ann['category_id'], encoded_mask['size'][0],
-                                    encoded_mask['size'][1], encoded_mask['counts'], ann['bbox'][0], ann['bbox'][1],
+                    # mask = np.zeros(self.seq_sizes[seq_id], order='F').astype(np.uint8)
+                    # mask[int(np.floor(ann['bbox'][1])):int(np.ceil(ann['bbox'][1] + ann['bbox'][3])+1),
+                    # int(np.floor(ann['bbox'][0])):int(np.ceil(ann['bbox'][0] + ann['bbox'][2])+1)] = 1
+                    # encoded_mask = mask_utils.encode(mask)
+                    # # convert box format from xywh to x0y0x1y1
+                    # lines.append('%d %d %d %d %d %s %.13f %.13f %.13f %.13f %.20f\n'
+                    #              % (t, ann['track_id'], ann['category_id'], encoded_mask['size'][0],
+                    #                 encoded_mask['size'][1], encoded_mask['counts'], ann['bbox'][0], ann['bbox'][1],
+                    #                 ann['bbox'][0] + ann['bbox'][2], ann['bbox'][1] + ann['bbox'][3], ann['score']))
+                    lines.append('%d %d %d %d %d %s %.13f %.13f %.13f %.13f %.20f\n'
+                                 % (t, ann['track_id'], ann['category_id'], 0,
+                                    0, 'None', ann['bbox'][0], ann['bbox'][1],
                                     ann['bbox'][0] + ann['bbox'][2], ann['bbox'][1] + ann['bbox'][3], ann['score']))
             data[seq] = lines
         return data
