@@ -18,9 +18,9 @@ class MOTSChallengeTrackerConverter(_BaseTrackerDataConverter):
         default_config = {
             'ORIGINAL_TRACKER_FOLDER': os.path.join(code_path, 'data/trackers/mot_challenge/'),
             # Location of original GT data
-            'NEW_TRACKER_FOLDER': os.path.join(code_path, 'data/converted_trackers/mot_challenge/mot_challenge_mots'),
+            'NEW_TRACKER_FOLDER': os.path.join(code_path, 'data/converted_trackers/mot_challenge/'),
             # Location for the converted GT data
-            'GT_FOLDER': os.path.join(code_path, 'data/converted_gt/mot_challenge/mot_challenge_mots'),
+            'GT_FOLDER': os.path.join(code_path, 'data/converted_gt/mot_challenge/'),
             # Location of ground truth data where the seqmap and the clsmap reside
             'SPLIT_TO_CONVERT': 'train',  # Split to convert
             'TRACKER_LIST': None,  # List of trackers to convert, None for all in folder
@@ -31,13 +31,14 @@ class MOTSChallengeTrackerConverter(_BaseTrackerDataConverter):
     @staticmethod
     def get_dataset_name():
         """Returns the name of the associated dataset"""
-        return 'MOTChallengeMOTS'
+        return 'MOTSChallenge'
 
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.tracker_fol = os.path.join(config['ORIGINAL_TRACKER_FOLDER'], 'MOTS-' + config['SPLIT_TO_CONVERT'])
-        self.new_tracker_folder = os.path.join(config['NEW_TRACKER_FOLDER'], config['SPLIT_TO_CONVERT'])
+        benchmark = 'MOTS-' + config['SPLIT_TO_CONVERT']
+        self.tracker_fol = os.path.join(config['ORIGINAL_TRACKER_FOLDER'], benchmark)
+        self.new_tracker_folder = os.path.join(config['NEW_TRACKER_FOLDER'], benchmark)
         if not config['TRACKER_LIST']:
             self.tracker_list = os.listdir(self.tracker_fol)
         else:
@@ -47,7 +48,7 @@ class MOTSChallengeTrackerConverter(_BaseTrackerDataConverter):
                                                 % (tracker, self.tracker_fol)
             self.tracker_list = config['TRACKER_LIST']
         self.gt_dir = config['GT_FOLDER']
-        self.split_to_convert = config['SPLIT_TO_CONVERT']
+        self.split_to_convert = benchmark
         self.output_as_zip = config['OUTPUT_AS_ZIP']
 
         # Get sequences
