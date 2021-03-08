@@ -18,7 +18,7 @@ class MOTSChallengeConverter(_BaseDatasetConverter):
         code_path = utils.get_code_path()
         default_config = {
             'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/mot_challenge/'),  # Location of original GT data
-            'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/mot_challenge/mots_challenge'),
+            'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/mot_challenge/'),
             # Location for the converted GT data
             'SPLIT_TO_CONVERT': 'train',  # Split to convert
             'OUTPUT_AS_ZIP': False  # Whether the converted output should be zip compressed
@@ -28,7 +28,7 @@ class MOTSChallengeConverter(_BaseDatasetConverter):
     @staticmethod
     def get_dataset_name():
         """Returns the name of the associated dataset"""
-        return 'MOTChallengeMOTS'
+        return 'MOTSChallenge'
 
     def __init__(self, config):
         super().__init__()
@@ -37,7 +37,7 @@ class MOTSChallengeConverter(_BaseDatasetConverter):
         self.gt_fol = config['ORIGINAL_GT_FOLDER'] + self.gt_set
         self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
-        self.split_to_convert = config['SPLIT_TO_CONVERT']
+        self.split_to_convert = self.gt_set
         self.class_name_to_class_id = {'pedestrian': 2, 'ignore': 10}
 
         # Get sequences to convert and check gt files exist
@@ -75,12 +75,12 @@ class MOTSChallengeConverter(_BaseDatasetConverter):
 
             lines = []
             with open(file) as fp:
-                dialect = csv.Sniffer().sniff(fp.read(10240), delimiters=' ')  # Auto determine file structure.
+                dialect = csv.Sniffer().sniff(fp.readline(), delimiters=' ')  # Auto determine file structure.
                 fp.seek(0)
                 reader = csv.reader(fp, dialect)
                 for row in reader:
-                    lines.append('%s %s %s %s %s %s %f %f %f %f %d %d %d %d\n'
-                                 % (row[0], row[1], row[2], row[3], row[4], row[5], 0, 0, 0, 0, 0, 0, 0, 0))
+                    lines.append('%d %s %s %s %s %s %f %f %f %f %d %d %d %d\n'
+                                 % (int(row[0]) - 1, row[1], row[2], row[3], row[4], row[5], 0, 0, 0, 0, 0, 0, 0, 0))
             data[seq] = lines
         return data
 
