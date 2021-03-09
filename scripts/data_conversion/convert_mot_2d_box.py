@@ -18,9 +18,9 @@ class MOTChallenge2DBoxConverter(_BaseDatasetConverter):
         code_path = utils.get_code_path()
         default_config = {
             'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/mot_challenge/'),  # Location of original GT data
-            'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/mot_challenge/mot_challenge_2d_box'),
+            'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/mot_challenge/'),
             # Location for the converted GT data
-            'BENCHMARK': 'MOT17',  # Benchmark to convert
+            'BENCHMARK': 'MOT20',  # Benchmark to convert
             'SPLIT_TO_CONVERT': 'train',  # Split to convert
             'OUTPUT_AS_ZIP': False  # Whether the converted output should be zip compressed
         }
@@ -80,7 +80,7 @@ class MOTChallenge2DBoxConverter(_BaseDatasetConverter):
             file = os.path.join(self.gt_fol, seq, 'gt', 'gt.txt')
             lines = []
             with open(file) as fp:
-                dialect = csv.Sniffer().sniff(fp.read(10240), delimiters=',')  # Auto determine file structure.
+                dialect = csv.Sniffer().sniff(fp.readline(), delimiters=',')  # Auto determine file structure.
                 fp.seek(0)
                 reader = csv.reader(fp, dialect)
                 # convert box format from xywh to x0y0x1y1
