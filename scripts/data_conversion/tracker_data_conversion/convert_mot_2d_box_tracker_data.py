@@ -96,8 +96,8 @@ class MOTChallenge2DBoxTrackerConverter(_BaseTrackerDataConverter):
                     #              % (int(row[0]) - 1, row[1], ped_id, encoded_mask['size'][0],
                     #                 encoded_mask['size'][1], encoded_mask['counts'], float(row[2]), float(row[3]),
                     #                 float(row[2]) + float(row[4]), float(row[3]) + float(row[5]), float(row[6])))
-                    lines.append('%d %s %d %d %d %s %f %f %f %f %f\n'
-                                 % (int(row[0]) - 1, row[1], ped_id, 0, 0, 'None', float(row[2]), float(row[3]),
+                    lines.append('%d %d %d %d %d %s %f %f %f %f %f\n'
+                                 % (int(row[0]) - 1, int(float(row[1])), ped_id, 0, 0, 'None', float(row[2]), float(row[3]),
                                     float(row[2]) + float(row[4]), float(row[3]) + float(row[5]), float(row[6])))
             data[seq] = lines
         return data
