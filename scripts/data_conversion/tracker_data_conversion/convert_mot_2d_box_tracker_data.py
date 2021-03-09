@@ -20,12 +20,12 @@ class MOTChallenge2DBoxTrackerConverter(_BaseTrackerDataConverter):
         code_path = utils.get_code_path()
         default_config = {
             'ORIGINAL_TRACKER_FOLDER': os.path.join(code_path, 'data/trackers/mot_challenge/'),
-            # Location of original GT data
-            'NEW_TRACKER_FOLDER': os.path.join(code_path, 'data/converted_trackers/mot_challenge/mot_challenge_2d_box'),
+            # Location of original Tracker data
+            'NEW_TRACKER_FOLDER': os.path.join(code_path, 'data/converted_trackers/mot_challenge/'),
             # Location for the converted GT data
-            'GT_FOLDER': os.path.join(code_path, 'data/converted_gt/mot_challenge/mot_challenge_2d_box'),
+            'GT_FOLDER': os.path.join(code_path, 'data/converted_gt/mot_challenge/'),
             # Location of ground truth data where the seqmap and the clsmap reside
-            'BENCHMARK': 'MOT17',  # Benchmark to convert
+            'BENCHMARK': 'MOT20',  # Benchmark to convert
             'SPLIT_TO_CONVERT': 'train',  # Split to convert
             'TRACKER_LIST': None,  # List of trackers to convert, None for all in folder
             'OUTPUT_AS_ZIP': False  # Whether the converted output should be zip compressed
@@ -88,14 +88,17 @@ class MOTChallenge2DBoxTrackerConverter(_BaseTrackerDataConverter):
                 reader = csv.reader(fp, dialect)
                 for row in reader:
                     # compute smallest mask which fully covers the bounding box
-                    mask = np.zeros(self.seq_sizes[seq], order='F').astype(np.uint8)
-                    mask[int(np.floor(float(row[3]))):int(np.ceil(float(row[3]) + float(row[5])+1)),
-                    int(np.floor(float(row[2]))):int(np.ceil(float(row[2]) + float(row[4])+1))] = 1
-                    encoded_mask = mask_utils.encode(mask)
+                    # mask = np.zeros(self.seq_sizes[seq], order='F').astype(np.uint8)
+                    # mask[int(np.floor(float(row[3]))):int(np.ceil(float(row[3]) + float(row[5])+1)),
+                    # int(np.floor(float(row[2]))):int(np.ceil(float(row[2]) + float(row[4])+1))] = 1
+                    # encoded_mask = mask_utils.encode(mask)
                     # convert box format from xywh to x0y0x1y1
+                    # lines.append('%d %s %d %d %d %s %f %f %f %f %f\n'
+                    #              % (int(row[0]) - 1, row[1], ped_id, encoded_mask['size'][0],
+                    #                 encoded_mask['size'][1], encoded_mask['counts'], float(row[2]), float(row[3]),
+                    #                 float(row[2]) + float(row[4]), float(row[3]) + float(row[5]), float(row[6])))
                     lines.append('%d %s %d %d %d %s %f %f %f %f %f\n'
-                                 % (int(row[0]) - 1, row[1], ped_id, encoded_mask['size'][0],
-                                    encoded_mask['size'][1], encoded_mask['counts'], float(row[2]), float(row[3]),
+                                 % (int(row[0]) - 1, row[1], ped_id, 0, 0, 'None', float(row[2]), float(row[3]),
                                     float(row[2]) + float(row[4]), float(row[3]) + float(row[5]), float(row[6])))
             data[seq] = lines
         return data
