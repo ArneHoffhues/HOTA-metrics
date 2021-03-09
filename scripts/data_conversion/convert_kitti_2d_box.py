@@ -16,10 +16,11 @@ class Kitti2DBoxConverter(_BaseDatasetConverter):
         """Default converter config values"""
         code_path = utils.get_code_path()
         default_config = {
-            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/kitti/kitti_2d_box'),  # Location of original GT data
+            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/kitti/kitti_2d_box_train'),
+            # Location of original GT data
             'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/kitti/kitti_2d_box'),
             # Location for the converted GT data
-            'SPLIT_TO_CONVERT': 'val',  # Split to convert
+            'SPLIT_TO_CONVERT': 'training',  # Split to convert
             'OUTPUT_AS_ZIP': False  # Whether the converted output should be zip compressed
         }
         return default_config
