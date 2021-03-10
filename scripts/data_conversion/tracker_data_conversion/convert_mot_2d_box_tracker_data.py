@@ -1,8 +1,6 @@
 import sys
 import os
 import csv
-import numpy as np
-from pycocotools import mask as mask_utils
 from _base_tracker_data_converter import _BaseTrackerDataConverter
 from tqdm import tqdm
 

@@ -2,7 +2,6 @@ import sys
 import os
 import json
 from _base_tracker_data_converter import _BaseTrackerDataConverter
-from glob import glob
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '...')))
 
@@ -54,10 +53,11 @@ class YouTubeVISTrackerConverter(_BaseTrackerDataConverter):
         self.id_counter = 0
 
         # read gt file
-        gt_dir_files = glob(os.path.join(self.orig_gt_folder, '*.json'))
-        assert len(gt_dir_files) == 1, self.orig_gt_folder + ' does not contain exactly one json file.'
+        gt_dir_files = [file for file in os.listdir(self.orig_gt_folder) if file.endswith('.json')]
+        if len(gt_dir_files) != 1:
+            raise Exception(self.orig_gt_folder + ' does not contain exactly one json file.')
 
-        with open(gt_dir_files[0]) as f:
+        with open(os.path.join(self.orig_gt_folder, gt_dir_files[0])) as f:
             self.gt_data = json.load(f)
 
         # get sequences
@@ -67,9 +67,10 @@ class YouTubeVISTrackerConverter(_BaseTrackerDataConverter):
 
         # check if all tracker files are present
         for tracker in self.tracker_list:
-            tracker_dir_files = glob(os.path.join(self.tracker_fol, tracker, 'data', '*.json'))
-            assert len(tracker_dir_files) == 1, os.path.join(self.tracker_fol,tracker) + \
-                                                ' does not contain exactly one json file.'
+            tracker_dir_path = os.path.join(self.tracker_fol, tracker, 'data')
+            tr_dir_files = [file for file in os.listdir(tracker_dir_path) if file.endswith('.json')]
+            if len(tr_dir_files) != 1:
+                raise Exception(tracker_dir_path + ' does not contain exactly one json file.')
 
 
     def _prepare_data(self, tracker):
@@ -81,9 +82,10 @@ class YouTubeVISTrackerConverter(_BaseTrackerDataConverter):
         data = {}
 
         # load tracker data
-        tracker_dir_files = glob(os.path.join(self.tracker_fol, tracker, 'data', '*.json'))
+        tracker_dir_path = os.path.join(self.tracker_fol, tracker, 'data')
+        tr_dir_files = [file for file in os.listdir(tracker_dir_path) if file.endswith('.json')]
 
-        with open(tracker_dir_files[0]) as f:
+        with open(os.path.join(tracker_dir_path, tr_dir_files[0])) as f:
             tracker_data = json.load(f)
 
         # add track id to each track

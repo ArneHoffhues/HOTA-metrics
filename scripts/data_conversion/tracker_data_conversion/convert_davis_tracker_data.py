@@ -4,8 +4,6 @@ from _base_tracker_data_converter import _BaseTrackerDataConverter
 from tqdm import tqdm
 import numpy as np
 from glob import glob
-from PIL import Image
-from pycocotools.mask import encode, decode
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '...')))
 
@@ -78,6 +76,10 @@ class DAVISTrackerConverter(_BaseTrackerDataConverter):
         :return: a dictionary which maps the sequence names to the lines that should be written to the according
                  sequence file
         """
+        # import for reduction of minimum requirements
+        from pycocotools.mask import encode
+        from PIL import Image
+
         data = {}
         for seq in tqdm(self.seq_list):
             seq_dir = os.path.join(self.tracker_fol, tracker, 'data', seq)

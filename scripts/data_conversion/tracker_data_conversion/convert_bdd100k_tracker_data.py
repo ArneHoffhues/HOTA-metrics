@@ -1,9 +1,7 @@
 import sys
 import os
 import json
-import numpy as np
 from tqdm import tqdm
-from pycocotools import mask as mask_utils
 from _base_tracker_data_converter import _BaseTrackerDataConverter
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '...')))
@@ -88,15 +86,19 @@ class BDD100KTrackerConverter(_BaseTrackerDataConverter):
             for t in range(num_timesteps):
                 for label in tracker_data[t]['labels']:
                     # compute smallest mask which fully covers the bounding box
-                    mask = np.zeros(self.seq_sizes[seq], order='F').astype(np.uint8)
-                    mask[int(np.floor(label['box2d']['y1'])):int(np.ceil(label['box2d']['y2'])+1),
-                         int(np.floor(label['box2d']['x1'])):int(np.ceil(label['box2d']['x2'])+1)] = 1
-                    encoded_mask = mask_utils.encode(mask)
+                    # mask = np.zeros(self.seq_sizes[seq], order='F').astype(np.uint8)
+                    # mask[int(np.floor(label['box2d']['y1'])):int(np.ceil(label['box2d']['y2'])+1),
+                    #      int(np.floor(label['box2d']['x1'])):int(np.ceil(label['box2d']['x2'])+1)] = 1
+                    # encoded_mask = mask_utils.encode(mask)
                     # convert bbox data into x0y0x1y1 format
+                    # lines.append('%d %d %d %d %d %s %.13f %.13f %.13f %.13f %.15f\n'
+                    #              % (t, int(label['id']), self.class_name_to_class_id[label['category']],
+                    #                 encoded_mask['size'][0], encoded_mask['size'][1], encoded_mask['counts'],
+                    #                 label['box2d']['x1'], label['box2d']['y1'], label['box2d']['x2'],
+                    #                 label['box2d']['y2'], label['score']))
                     lines.append('%d %d %d %d %d %s %.13f %.13f %.13f %.13f %.15f\n'
                                  % (t, int(label['id']), self.class_name_to_class_id[label['category']],
-                                    encoded_mask['size'][0], encoded_mask['size'][1], encoded_mask['counts'],
-                                    label['box2d']['x1'], label['box2d']['y1'], label['box2d']['x2'],
+                                    0, 0, 'None', label['box2d']['x1'], label['box2d']['y1'], label['box2d']['x2'],
                                     label['box2d']['y2'], label['score']))
             data[seq] = lines
         return data
