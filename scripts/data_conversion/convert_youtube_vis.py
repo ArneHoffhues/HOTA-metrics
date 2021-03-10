@@ -1,8 +1,6 @@
 import sys
 import os
-from glob import glob
 import json
-from pycocotools.mask import frPyObjects, decode
 from _base_dataset_converter import _BaseDatasetConverter
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '...')))
@@ -63,6 +61,9 @@ class YouTubeVISConverter(_BaseDatasetConverter):
         :return: a dictionary which maps the sequence names to the lines that should be written to the according
                  sequence file
         """
+        # import for reduction of minimum requirements
+        from pycocotools.mask import frPyObjects
+
         data = {}
         for seq in self.seq_list:
             # determine annotations for given sequence

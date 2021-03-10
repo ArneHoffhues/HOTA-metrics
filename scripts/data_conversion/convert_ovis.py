@@ -9,7 +9,7 @@ from hota_metrics import utils  # noqa: E402
 
 
 class OVISConverter(_BaseDatasetConverter):
-    """Converter for YouTubeVIS ground truth data"""
+    """Converter for OVIS ground truth data"""
 
     @staticmethod
     def get_default_config():

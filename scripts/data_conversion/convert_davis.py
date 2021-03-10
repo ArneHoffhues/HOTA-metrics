@@ -1,10 +1,8 @@
 import sys
 import os
-import csv
 from glob import glob
 import numpy as np
 from PIL import Image
-from pycocotools.mask import encode, decode
 from tqdm import tqdm
 from _base_dataset_converter import _BaseDatasetConverter
 
@@ -68,6 +66,9 @@ class DAVISConverter(_BaseDatasetConverter):
         :return: a dictionary which maps the sequence names to the lines that should be written to the according
                  sequence file
         """
+        # import for reduction of minimum requirements
+        from pycocotools.mask import encode
+
         data = {}
         for seq in tqdm(self.seq_list):
             seq_dir = os.path.join(self.gt_fol, seq)
