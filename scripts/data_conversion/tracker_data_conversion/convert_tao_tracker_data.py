@@ -110,8 +110,6 @@ class TAOTrackerConverter(_BaseTrackerDataConverter):
                 # determine annotations for given timestep
                 timestep_annotations = [ann for ann in seq_annotations
                                         if ann['image_id'] == self.vids_to_images[seq_id][t]['id']]
-                print(timestep_annotations)
-                exit()
                 for ann in timestep_annotations:
                     # compute smallest mask which fully covers the bounding box
                     # mask = np.zeros(self.seq_sizes[seq_id], order='F').astype(np.uint8)
