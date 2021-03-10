@@ -41,10 +41,11 @@ class YouTubeVISConverter(_BaseDatasetConverter):
         self.split_to_convert = config['SPLIT_TO_CONVERT']
 
         # load gt data
-        gt_dir_files = glob(os.path.join(self.gt_fol, '*.json'))
-        assert len(gt_dir_files) == 1, self.gt_fol + ' does not contain exactly one json file.'
+        gt_dir_files = [file for file in os.listdir(self.gt_fol) if file.endswith('.json')]
+        if len(gt_dir_files) != 1:
+            raise Exception(self.gt_fol + ' does not contain exactly one json file.')
 
-        with open(gt_dir_files[0]) as f:
+        with open(os.path.join(self.gt_fol, gt_dir_files[0])) as f:
             self.gt_data = json.load(f)
 
         self.class_name_to_class_id = {cat['name']: cat['id'] for cat in self.gt_data['categories']}
@@ -74,7 +75,7 @@ class YouTubeVISConverter(_BaseDatasetConverter):
                         h = ann['height']
                         w = ann['width']
                         mask_encoded = frPyObjects(ann['segmentations'][t], h, w)
-                        lines.append('%d %d %d %d %d %s %d %d %d %d %d %d %d %d\n'
+                        lines.append('%d %d %d %d %d %s %f %f %f %f %d %d %d %d\n'
                                      % (t, ann['id'], ann['category_id'], h, w, mask_encoded['counts'].decode("utf-8"),
                                         0, 0, 0, 0, ann['iscrowd'], 0, 0, 0))
             data[seq] = lines

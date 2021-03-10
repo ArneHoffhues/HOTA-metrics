@@ -39,10 +39,11 @@ class TAOConverter(_BaseDatasetConverter):
         self.split_to_convert = config['SPLIT_TO_CONVERT']
 
         # read gt file
-        gt_dir_files = glob(os.path.join(self.gt_fol, '*.json'))
-        assert len(gt_dir_files) == 1, self.gt_fol + ' does not contain exactly one json file.'
+        gt_dir_files = [file for file in os.listdir(self.gt_fol) if file.endswith('.json')]
+        if len(gt_dir_files) != 1:
+            raise Exception(self.gt_fol + ' does not contain exactly one json file.')
 
-        with open(gt_dir_files[0]) as f:
+        with open(os.path.join(self.gt_fol, gt_dir_files[0])) as f:
             self.gt_data = json.load(f)
 
         # class list and corresponding class ids
