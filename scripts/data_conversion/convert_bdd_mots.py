@@ -72,7 +72,7 @@ class BDDMOTSConverter(_BaseDatasetConverter):
                 if seq not in self.seq_sizes:
                     self.seq_sizes[seq] = bitmask.shape[:2]
 
-                instance_map = bitmask[:, :, 2] + bitmask[:, :, 3]
+                instance_map = (bitmask[:, :, 2] << 8) + bitmask[:, :, 3]
                 category_map = bitmask[:, :, 0]
                 attributes_map = bitmask[:, :, 1]
                 instance_ids = np.sort(np.unique(instance_map[instance_map >= 1]))
@@ -92,10 +92,10 @@ class BDDMOTSConverter(_BaseDatasetConverter):
                         category_ids_i = np.unique(category_map[mask_inds_i])
                         assert category_ids_i.shape[0] == 1
 
-                        lines.append('%d %d %d %d %d %s %.13f %.13f %.13f %.13f %d %d %d %d %d\n'
+                        lines.append('%d %d %d %d %d %s %.13f %.13f %.13f %.13f %d %d %d %d\n'
                                      % (t, int(instance_id), category_ids_i[0], mask_encoded['size'][0],
                                         mask_encoded['size'][1], mask_encoded['counts'].decode("utf-8"),
-                                        0, 0, 0, 0, crowd_i, truncated_i, occluded_i, 0, ignore_i))
+                                        0, 0, 0, 0, crowd_i, truncated_i, occluded_i, ignore_i))
                     except AssertionError:
                         # TODO FIX NOT UNIQUE ATTRIBUTE VALUES
                         pass
