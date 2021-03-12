@@ -68,7 +68,7 @@ class BDDMOTSConverter(_BaseDatasetConverter):
             for t in range(num_timesteps):
                 # load bitmask for timestep
                 bitmask_file = os.path.join(bitmask_folder, bitmasks[t])
-                bitmask = np.asarray(Image.open(bitmask_file))
+                bitmask = np.asarray(Image.open(bitmask_file)).astype(np.int32)
                 if seq not in self.seq_sizes:
                     self.seq_sizes[seq] = bitmask.shape[:2]
 
@@ -78,27 +78,23 @@ class BDDMOTSConverter(_BaseDatasetConverter):
                 instance_ids = np.sort(np.unique(instance_map[instance_map >= 1]))
 
                 for i, instance_id in enumerate(instance_ids):
-                    try:
-                        mask_inds_i = instance_map == instance_id
-                        mask_encoded = mask_utils.encode(np.asfortranarray(mask_inds_i).astype(np.uint8))
-                        attributes_i = np.unique(attributes_map[mask_inds_i])
-                        assert attributes_i.shape[0] == 1
-                        # attributes:   first bit - ignore, second bit - crowd, third bit - occluded,
-                        #               fourth bit - truncated
-                        ignore_i = attributes_i[0] & 1
-                        crowd_i = attributes_i[0] >> 1 & 1
-                        occluded_i = attributes_i[0] >> 2 & 1
-                        truncated_i = attributes_i[0] >> 3 & 1
-                        category_ids_i = np.unique(category_map[mask_inds_i])
-                        assert category_ids_i.shape[0] == 1
+                    mask_inds_i = instance_map == instance_id
+                    mask_encoded = mask_utils.encode(np.asfortranarray(mask_inds_i).astype(np.uint8))
+                    attributes_i = np.unique(attributes_map[mask_inds_i])
+                    assert attributes_i.shape[0] == 1
+                    # attributes:   first bit - ignore, second bit - crowd, third bit - occluded,
+                    #               fourth bit - truncated
+                    ignore_i = attributes_i[0] & 1
+                    crowd_i = attributes_i[0] >> 1 & 1
+                    occluded_i = attributes_i[0] >> 2 & 1
+                    truncated_i = attributes_i[0] >> 3 & 1
+                    category_ids_i = np.unique(category_map[mask_inds_i])
+                    assert category_ids_i.shape[0] == 1
 
-                        lines.append('%d %d %d %d %d %s %.13f %.13f %.13f %.13f %d %d %d %d\n'
-                                     % (t, int(instance_id), category_ids_i[0], mask_encoded['size'][0],
-                                        mask_encoded['size'][1], mask_encoded['counts'].decode("utf-8"),
-                                        0, 0, 0, 0, crowd_i, truncated_i, occluded_i, ignore_i))
-                    except AssertionError:
-                        # TODO FIX NOT UNIQUE ATTRIBUTE VALUES
-                        pass
+                    lines.append('%d %d %d %d %d %s %.13f %.13f %.13f %.13f %d %d %d %d\n'
+                                 % (t, int(instance_id), category_ids_i[0], mask_encoded['size'][0],
+                                    mask_encoded['size'][1], mask_encoded['counts'].decode("utf-8"),
+                                    0, 0, 0, 0, crowd_i, truncated_i, occluded_i, ignore_i))
             data[seq] = lines
         return data
 
