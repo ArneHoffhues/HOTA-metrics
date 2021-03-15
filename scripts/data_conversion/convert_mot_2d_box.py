@@ -35,7 +35,7 @@ class MOTChallenge2DBoxConverter(_BaseDatasetConverter):
         super().__init__()
         self.config = config
         self.gt_set = config['BENCHMARK'] + '-' + config['SPLIT_TO_CONVERT']
-        self.gt_fol = config['ORIGINAL_GT_FOLDER'] + self.gt_set
+        self.gt_fol = os.path.join(config['ORIGINAL_GT_FOLDER'], self.gt_set)
         self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
         self.split_to_convert = config['BENCHMARK'] + '_' + config['SPLIT_TO_CONVERT']

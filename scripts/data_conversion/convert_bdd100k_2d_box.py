@@ -34,7 +34,7 @@ class BDD100K2DBoxConverter(_BaseDatasetConverter):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.gt_fol = config['ORIGINAL_GT_FOLDER'] + 'bdd100k_2d_box_' + config['SPLIT_TO_CONVERT']
+        self.gt_fol = os.path.join(config['ORIGINAL_GT_FOLDER'], 'bdd100k_2d_box_' + config['SPLIT_TO_CONVERT'])
         self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
         self.split_to_convert = 'bdd100k_2d_box_' + config['SPLIT_TO_CONVERT']
@@ -42,8 +42,7 @@ class BDD100K2DBoxConverter(_BaseDatasetConverter):
                                        'train': 7, 'trailer': 8, 'other vehicle': 9, 'motorcycle': 10, 'bicycle': 11}
 
         # Get sequences
-        self.sequences = glob(os.path.join(self.gt_fol, '*.json'))
-        self.seq_list = [seq.split('/')[-1].split('.')[0] for seq in self.sequences]
+        self.seq_list = [seq_file.replace('.json', '') for seq_file in os.listdir(self.gt_fol)]
         self.seq_lengths = {}
         # bdd100k are 720p
         self.seq_sizes = {seq: (720, 1280) for seq in self.seq_list}
