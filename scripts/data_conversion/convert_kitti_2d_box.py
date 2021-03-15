@@ -18,7 +18,7 @@ class Kitti2DBoxConverter(_BaseDatasetConverter):
         default_config = {
             'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/kitti/kitti_2d_box_train'),
             # Location of original GT data
-            'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/kitti/kitti_2d_box'),
+            'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/kitti/'),
             # Location for the converted GT data
             'SPLIT_TO_CONVERT': 'training',  # Split to convert
             'OUTPUT_AS_ZIP': False  # Whether the converted output should be zip compressed
@@ -36,7 +36,7 @@ class Kitti2DBoxConverter(_BaseDatasetConverter):
         self.gt_fol = config['ORIGINAL_GT_FOLDER']
         self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
-        self.split_to_convert = config['SPLIT_TO_CONVERT']
+        self.split_to_convert = 'kitti_2d_box_' + config['SPLIT_TO_CONVERT']
         # class list and corresponding class ids
         self.class_name_to_class_id = {'car': 1, 'van': 2, 'truck': 3, 'pedestrian': 4, 'person': 5,
                                        'cyclist': 6, 'tram': 7, 'misc': 8, 'dontcare': 9}

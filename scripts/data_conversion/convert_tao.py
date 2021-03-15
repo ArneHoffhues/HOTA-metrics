@@ -1,6 +1,5 @@
 import sys
 import os
-from glob import glob
 import json
 from pathlib import Path
 from _base_dataset_converter import _BaseDatasetConverter
@@ -18,7 +17,7 @@ class TAOConverter(_BaseDatasetConverter):
         """Default converter config values"""
         code_path = utils.get_code_path()
         default_config = {
-            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/tao/tao_training'),  # Location of original GT data
+            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/tao/'),  # Location of original GT data
             'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/tao/'),  # Location for the converted GT data
             'SPLIT_TO_CONVERT': 'training',  # Split to convert
             'OUTPUT_AS_ZIP': False  # Whether the converted output should be zip compressed
@@ -33,10 +32,10 @@ class TAOConverter(_BaseDatasetConverter):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.gt_fol = config['ORIGINAL_GT_FOLDER']
+        self.gt_fol = config['ORIGINAL_GT_FOLDER'] + 'tao_' + config['SPLIT_TO_CONVERT']
         self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
-        self.split_to_convert = config['SPLIT_TO_CONVERT']
+        self.split_to_convert = 'tao_' + config['SPLIT_TO_CONVERT']
 
         # read gt file
         gt_dir_files = [file for file in os.listdir(self.gt_fol) if file.endswith('.json')]

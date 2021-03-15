@@ -19,7 +19,7 @@ class DAVISConverter(_BaseDatasetConverter):
         """Default converter config values"""
         code_path = utils.get_code_path()
         default_config = {
-            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/davis/davis_unsupervised_val'),
+            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/davis/'),
             # Location of original GT data
             'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/davis/'),  # Location for the converted GT data
             'SPLIT_TO_CONVERT': 'val',  # Split to convert
@@ -35,10 +35,10 @@ class DAVISConverter(_BaseDatasetConverter):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.gt_fol = config['ORIGINAL_GT_FOLDER']
+        self.gt_fol = config['ORIGINAL_GT_FOLDER'] + 'davis_unsupervised_' + config['SPLIT_TO_CONVERT']
         self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
-        self.split_to_convert = config['SPLIT_TO_CONVERT']
+        self.split_to_convert = 'davis_unsupervised_' + config['SPLIT_TO_CONVERT']
         self.class_name_to_class_id = {'general': 1, 'void': 2}
 
         # Get sequences to convert and check gt files exist

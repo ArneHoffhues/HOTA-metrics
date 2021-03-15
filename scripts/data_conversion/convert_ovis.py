@@ -36,7 +36,7 @@ class OVISConverter(_BaseDatasetConverter):
         self.gt_fol = config['ORIGINAL_GT_FOLDER'] + 'ovis_' + self.config['SPLIT_TO_CONVERT']
         self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
-        self.split_to_convert = config['SPLIT_TO_CONVERT']
+        self.split_to_convert = 'ovis_' + config['SPLIT_TO_CONVERT']
 
         # load gt data
         gt_dir_files = [file for file in os.listdir(self.gt_fol) if file.endswith('.json')]

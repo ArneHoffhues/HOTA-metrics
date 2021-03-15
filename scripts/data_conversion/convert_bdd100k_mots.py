@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '...'
 from hota_metrics import utils  # noqa: E402
 
 
-class BDDMOTSConverter(_BaseDatasetConverter):
+class BDD100KMOTSConverter(_BaseDatasetConverter):
     """Converter for BDDMOTS ground truth data"""
 
     @staticmethod
@@ -17,9 +17,9 @@ class BDDMOTSConverter(_BaseDatasetConverter):
         """Default converter config values"""
         code_path = utils.get_code_path()
         default_config = {
-            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/bddmots/bddmots_val/'),
+            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/bdd100k/'),
             # Location of original GT data
-            'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/bddmots/'),
+            'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/bdd100k/'),
             # Location for the converted GT data
             'SPLIT_TO_CONVERT': 'val',  # Split to convert
             'OUTPUT_AS_ZIP': False  # Whether the converted output should be zip compressed
@@ -29,15 +29,15 @@ class BDDMOTSConverter(_BaseDatasetConverter):
     @staticmethod
     def get_dataset_name():
         """Returns the name of the associated dataset"""
-        return 'BDDMOTS'
+        return 'BDD100KMOTS'
 
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.gt_fol = config['ORIGINAL_GT_FOLDER']
+        self.gt_fol = config['ORIGINAL_GT_FOLDER'] + 'bdd100k_mots_' + config['SPLIT_TO_CONVERT']
         self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
-        self.split_to_convert = config['SPLIT_TO_CONVERT']
+        self.split_to_convert = 'bdd100k_mots_' + config['SPLIT_TO_CONVERT']
 
         self.class_name_to_class_id = {'pedestrian': 1, 'rider': 2, 'car': 3, 'truck': 4, 'bus': 5, 'train': 6,
                                        'motorcycle': 7, 'bicycle': 8}
@@ -100,6 +100,6 @@ class BDDMOTSConverter(_BaseDatasetConverter):
 
 
 if __name__ == '__main__':
-    default_conf = BDDMOTSConverter.get_default_config()
+    default_conf = BDD100KMOTSConverter.get_default_config()
     conf = utils.update_config(default_conf)
-    BDDMOTSConverter(conf).convert()
+    BDD100KMOTSConverter(conf).convert()

@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '...'
 from hota_metrics import utils  # noqa: E402
 
 
-class BDD100KConverter(_BaseDatasetConverter):
+class BDD100K2DBoxConverter(_BaseDatasetConverter):
     """Converter for BDD100K ground truth data"""
 
     @staticmethod
@@ -17,7 +17,7 @@ class BDD100KConverter(_BaseDatasetConverter):
         """Default converter config values"""
         code_path = utils.get_code_path()
         default_config = {
-            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/bdd100k/bdd100k_val/'),
+            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/bdd100k/'),
             # Location of original GT data
             'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/bdd100k/'),
             # Location for the converted GT data
@@ -29,15 +29,15 @@ class BDD100KConverter(_BaseDatasetConverter):
     @staticmethod
     def get_dataset_name():
         """Returns the name of the associated dataset"""
-        return 'BDD100K'
+        return 'BDD100K2DBox'
 
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.gt_fol = config['ORIGINAL_GT_FOLDER']
+        self.gt_fol = config['ORIGINAL_GT_FOLDER'] + 'bdd100k_2d_box_' + config['SPLIT_TO_CONVERT']
         self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
-        self.split_to_convert = config['SPLIT_TO_CONVERT']
+        self.split_to_convert = 'bdd100k_2d_box_' + config['SPLIT_TO_CONVERT']
         self.class_name_to_class_id = {'pedestrian': 1, 'rider': 2, 'other person': 3, 'car': 4, 'bus': 5, 'truck': 6,
                                        'train': 7, 'trailer': 8, 'other vehicle': 9, 'motorcycle': 10, 'bicycle': 11}
 
@@ -85,6 +85,6 @@ class BDD100KConverter(_BaseDatasetConverter):
 
 
 if __name__ == '__main__':
-    default_conf = BDD100KConverter.get_default_config()
+    default_conf = BDD100K2DBoxConverter.get_default_config()
     conf = utils.update_config(default_conf)
-    BDD100KConverter(conf).convert()
+    BDD100K2DBoxConverter(conf).convert()

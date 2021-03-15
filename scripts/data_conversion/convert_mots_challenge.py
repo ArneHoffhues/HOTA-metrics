@@ -37,7 +37,7 @@ class MOTSChallengeConverter(_BaseDatasetConverter):
         self.gt_fol = config['ORIGINAL_GT_FOLDER'] + self.gt_set
         self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
-        self.split_to_convert = self.gt_set
+        self.split_to_convert = 'MOTS_' + config['SPLIT_TO_CONVERT']
         self.class_name_to_class_id = {'pedestrian': 2, 'ignore': 10}
 
         # Get sequences to convert and check gt files exist

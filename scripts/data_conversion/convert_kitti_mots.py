@@ -16,9 +16,9 @@ class KittiMOTSConverter(_BaseDatasetConverter):
         """Default converter config values"""
         code_path = utils.get_code_path()
         default_config = {
-            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/kitti/kitti_mots_val'),
+            'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/kitti/'),
             # Location of original GT data
-            'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/kitti/kitti_mots'),
+            'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/kitti/'),
             # Location for the converted GT data
             'SPLIT_TO_CONVERT': 'val',  # Split to convert
             'OUTPUT_AS_ZIP': False  # Whether the converted output should be zip compressed
@@ -33,10 +33,10 @@ class KittiMOTSConverter(_BaseDatasetConverter):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.gt_fol = config['ORIGINAL_GT_FOLDER']
+        self.gt_fol = config['ORIGINAL_GT_FOLDER'] + 'kitti_mots_' + config['SPLIT_TO_CONVERT']
         self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
-        self.split_to_convert = config['SPLIT_TO_CONVERT']
+        self.split_to_convert = 'kitti_mots_' + config['SPLIT_TO_CONVERT']
         self.class_name_to_class_id = {'car': 1, 'pedestrian': 2, 'ignore': 10}
 
         # Get sequences to convert and check gt files exist

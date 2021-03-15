@@ -20,7 +20,7 @@ class MOTChallenge2DBoxConverter(_BaseDatasetConverter):
             'ORIGINAL_GT_FOLDER': os.path.join(code_path, 'data/gt/mot_challenge/'),  # Location of original GT data
             'NEW_GT_FOLDER': os.path.join(code_path, 'data/converted_gt/mot_challenge/'),
             # Location for the converted GT data
-            'BENCHMARK': 'MOT20',  # Benchmark to convert
+            'BENCHMARK': 'MOT17',  # Benchmark to convert
             'SPLIT_TO_CONVERT': 'train',  # Split to convert
             'OUTPUT_AS_ZIP': False  # Whether the converted output should be zip compressed
         }
@@ -38,7 +38,7 @@ class MOTChallenge2DBoxConverter(_BaseDatasetConverter):
         self.gt_fol = config['ORIGINAL_GT_FOLDER'] + self.gt_set
         self.new_gt_folder = config['NEW_GT_FOLDER']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
-        self.split_to_convert = self.gt_set
+        self.split_to_convert = config['BENCHMARK'] + '_' + config['SPLIT_TO_CONVERT']
         self.class_name_to_class_id = {'pedestrian': 1, 'person_on_vehicle': 2, 'car': 3, 'bicycle': 4, 'motorbike': 5,
                                        'non_mot_vehicle': 6, 'static_person': 7, 'distractor': 8, 'occluder': 9,
                                        'occluder_on_ground': 10, 'occluder_full': 11, 'reflection': 12, 'crowd': 13}
