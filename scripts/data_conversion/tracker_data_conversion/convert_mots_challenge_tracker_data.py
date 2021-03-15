@@ -36,9 +36,9 @@ class MOTSChallengeTrackerConverter(_BaseTrackerDataConverter):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        benchmark = 'MOTS-' + config['SPLIT_TO_CONVERT']
-        self.tracker_fol = os.path.join(config['ORIGINAL_TRACKER_FOLDER'], benchmark)
-        self.new_tracker_folder = os.path.join(config['NEW_TRACKER_FOLDER'], benchmark)
+        self.split_to_convert = 'MOTS_' + config['SPLIT_TO_CONVERT']
+        self.tracker_fol = os.path.join(config['ORIGINAL_TRACKER_FOLDER'], 'MOTS-' + config['SPLIT_TO_CONVERT'])
+        self.new_tracker_folder = os.path.join(config['NEW_TRACKER_FOLDER'], self.split_to_convert)
         if not config['TRACKER_LIST']:
             self.tracker_list = os.listdir(self.tracker_fol)
         else:
@@ -48,7 +48,6 @@ class MOTSChallengeTrackerConverter(_BaseTrackerDataConverter):
                                                 % (tracker, self.tracker_fol)
             self.tracker_list = config['TRACKER_LIST']
         self.gt_dir = config['GT_FOLDER']
-        self.split_to_convert = benchmark
         self.output_as_zip = config['OUTPUT_AS_ZIP']
 
         # Get sequences

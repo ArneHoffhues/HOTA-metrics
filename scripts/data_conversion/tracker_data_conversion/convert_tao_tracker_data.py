@@ -39,9 +39,10 @@ class TAOTrackerConverter(_BaseTrackerDataConverter):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.tracker_fol = os.path.join(config['ORIGINAL_TRACKER_FOLDER'], 'tao_' + config['SPLIT_TO_CONVERT'])
-        self.new_tracker_folder = os.path.join(config['NEW_TRACKER_FOLDER'], config['SPLIT_TO_CONVERT'])
-        self.orig_gt_folder = os.path.join(config['GT_DATA_LOC'], 'tao_' + config['SPLIT_TO_CONVERT'])
+        self.split_to_convert = 'tao_' + config['SPLIT_TO_CONVERT']
+        self.tracker_fol = os.path.join(config['ORIGINAL_TRACKER_FOLDER'], self.split_to_convert)
+        self.new_tracker_folder = os.path.join(config['NEW_TRACKER_FOLDER'], self.split_to_convert)
+        self.orig_gt_folder = os.path.join(config['GT_DATA_LOC'], self.split_to_convert)
         if not config['TRACKER_LIST']:
             self.tracker_list = os.listdir(self.tracker_fol)
         else:
@@ -50,7 +51,6 @@ class TAOTrackerConverter(_BaseTrackerDataConverter):
                 assert tracker in tracker_dirs, 'Tracker directory for tracker %s missing in %s' \
                                                 % (tracker, self.tracker_fol)
             self.tracker_list = config['TRACKER_LIST']
-        self.split_to_convert = config['SPLIT_TO_CONVERT']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
 
         # read gt file

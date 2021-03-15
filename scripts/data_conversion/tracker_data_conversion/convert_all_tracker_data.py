@@ -1,4 +1,4 @@
-from convert_bdd100k_tracker_data import BDD100KTrackerConverter
+from convert_bdd100k_2d_box_tracker_data import BDD100KTrackerConverter
 from convert_davis_tracker_data import DAVISTrackerConverter
 from convert_kitti_2d_box_tracker_data import Kitti2DBoxTrackerConverter
 from convert_kitti_mots_tracker_data import KittiMOTSTrackerConverter

@@ -38,8 +38,9 @@ class MOTChallenge2DBoxTrackerConverter(_BaseTrackerDataConverter):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.split_to_convert = config['BENCHMARK'] + '-' + config['SPLIT_TO_CONVERT']
-        self.tracker_fol = os.path.join(config['ORIGINAL_TRACKER_FOLDER'], self.split_to_convert)
+        self.gt_set = config['BENCHMARK'] + '-' + config['SPLIT_TO_CONVERT']
+        self.split_to_convert = config['BENCHMARK'] + '_' + config['SPLIT_TO_CONVERT']
+        self.tracker_fol = os.path.join(config['ORIGINAL_TRACKER_FOLDER'], self.gt_set)
         self.new_tracker_folder = os.path.join(config['NEW_TRACKER_FOLDER'], self.split_to_convert)
         if not config['TRACKER_LIST']:
             self.tracker_list = os.listdir(self.tracker_fol)

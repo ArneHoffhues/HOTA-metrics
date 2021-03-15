@@ -18,9 +18,9 @@ class Kitti2DBoxTrackerConverter(_BaseTrackerDataConverter):
         default_config = {
             'ORIGINAL_TRACKER_FOLDER': os.path.join(code_path, 'data/trackers/kitti/kitti_2d_box_train'),
             # Location of original GT data
-            'NEW_TRACKER_FOLDER': os.path.join(code_path, 'data/converted_trackers/kitti/kitti_2d_box'),
+            'NEW_TRACKER_FOLDER': os.path.join(code_path, 'data/converted_trackers/kitti/'),
             # Location for the converted GT data
-            'GT_FOLDER': os.path.join(code_path, 'data/converted_gt/kitti/kitti_2d_box'),
+            'GT_FOLDER': os.path.join(code_path, 'data/converted_gt/kitti/'),
             # Location of ground truth data where the seqmap and the clsmap reside
             'SPLIT_TO_CONVERT': 'training',  # Split to convert
             'TRACKER_LIST': None,  # List of trackers to convert, None for all in folder
@@ -36,8 +36,9 @@ class Kitti2DBoxTrackerConverter(_BaseTrackerDataConverter):
     def __init__(self, config):
         super().__init__()
         self.config = config
+        self.split_to_convert = 'kitti_2d_box_' + config['SPLIT_TO_CONVERT']
         self.tracker_fol = config['ORIGINAL_TRACKER_FOLDER']
-        self.new_tracker_folder = os.path.join(config['NEW_TRACKER_FOLDER'], config['SPLIT_TO_CONVERT'])
+        self.new_tracker_folder = os.path.join(config['NEW_TRACKER_FOLDER'], self.split_to_convert)
         if not config['TRACKER_LIST']:
             self.tracker_list = os.listdir(self.tracker_fol)
         else:
@@ -47,7 +48,6 @@ class Kitti2DBoxTrackerConverter(_BaseTrackerDataConverter):
                                                 % (tracker, self.tracker_fol)
             self.tracker_list = config['TRACKER_LIST']
         self.gt_dir = config['GT_FOLDER']
-        self.split_to_convert = config['SPLIT_TO_CONVERT']
         self.output_as_zip = config['OUTPUT_AS_ZIP']
 
         # Get sequences
