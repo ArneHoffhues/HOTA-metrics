@@ -85,8 +85,8 @@ class MOTChallenge2DBoxConverter(_BaseDatasetConverter):
                 reader = csv.reader(fp, dialect)
                 # convert box format from xywh to x0y0x1y1
                 for row in reader:
-                    lines.append('%d %s %s %d %d %s %f %f %f %f %d %d %d %s\n'
-                                 % (int(row[0]) - 1, row[1], row[7], 0, 0, 'None', float(row[2]), float(row[3]),
+                    lines.append('%d %s %d %d %d %s %f %f %f %f %d %d %d %s\n'
+                                 % (int(row[0]) - 1, row[1], int(float(row[7])), 0, 0, 'None', float(row[2]), float(row[3]),
                                     float(row[2]) + float(row[4]), float(row[3]) + float(row[5]), 0, 0, 0, row[6]))
             data[seq] = lines
         return data
