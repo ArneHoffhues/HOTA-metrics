@@ -82,7 +82,7 @@ for dataset_config in tests:
         tracker_data_dir = os.path.join(test_data_loc, tracker)
         classes = [cls.split("_detailed.csv")[0] for cls in os.listdir(tracker_data_dir)]
         for cls in classes:
-            results = {seq: raw_results['General'][tracker][seq][cls] for seq in raw_results['General'][tracker].keys()}
+            results = {seq: raw_results['Unified'][tracker][seq][cls] for seq in raw_results['Unified'][tracker].keys()}
             current_metrics_list = metrics_list + [trackeval.metrics.Count()]
             metric_names = trackeval.utils.validate_metrics_list(current_metrics_list)
 
