@@ -23,32 +23,31 @@ eval_config = {'USE_PARALLEL': False,
                }
 evaluator = trackeval.Evaluator(eval_config)
 metrics_list = [trackeval.metrics.HOTA(), trackeval.metrics.CLEAR(), trackeval.metrics.Identity()]
+default_track_map_config = trackeval.metrics.TrackMAP.get_default_metric_config()
+default_track_map_config['USE_TIME_RANGES'] = False
+default_track_map_config['AREA_RANGES'] = [[0 ** 2, 128 ** 2],
+                                           [ 128 ** 2, 256 ** 2],
+                                           [256 ** 2, 1e5 ** 2]]
+metrics_list.append(trackeval.metrics.TrackMAP(default_track_map_config))
 
 tests = [
-    {'DATASET': 'KittiMOTS', 'SPLIT_TO_EVAL': 'val', 'TRACKERS_TO_EVAL': ['trackrcnn']},
-    {'DATASET': 'MOTSChallenge', 'SPLIT_TO_EVAL': 'train', 'TRACKERS_TO_EVAL': ['TrackRCNN']}
+    {'SPLIT_TO_EVAL': 'train_sub_split', 'TRACKERS_TO_EVAL': ['STEm_Seg']},
 ]
 
 for dataset_config in tests:
 
-    dataset_name = dataset_config.pop('DATASET')
-    if dataset_name == 'MOTSChallenge':
-        dataset_list = [trackeval.datasets.MOTSChallenge(dataset_config)]
-        file_loc = os.path.join('mot_challenge', 'MOTS-' + dataset_config['SPLIT_TO_EVAL'])
-    elif dataset_name == 'KittiMOTS':
-        dataset_list = [trackeval.datasets.KittiMOTS(dataset_config)]
-        file_loc = os.path.join('kitti', 'kitti_mots_val')
-    else:
-        raise Exception('Dataset %s does not exist.' % dataset_name)
+    dataset_list = [trackeval.datasets.YouTubeVIS(dataset_config)]
+    file_loc = os.path.join('youtube_vis', 'youtube_vis_' + dataset_config['SPLIT_TO_EVAL'])
 
     raw_results, messages = evaluator.evaluate(dataset_list, metrics_list)
 
-    classes = dataset_list[0].config['CLASSES_TO_EVAL']
     tracker = dataset_config['TRACKERS_TO_EVAL'][0]
     test_data_loc = os.path.join(os.path.dirname(__file__), '..', 'data', 'tests', file_loc)
+    tracker_data_dir = os.path.join(test_data_loc, tracker)
+    classes = [cls.split("_detailed.csv")[0] for cls in os.listdir(tracker_data_dir)]
 
     for cls in classes:
-        results = {seq: raw_results[dataset_name][tracker][seq][cls] for seq in raw_results[dataset_name][tracker].keys()}
+        results = {seq: raw_results['YouTubeVIS'][tracker][seq][cls] for seq in raw_results['YouTubeVIS'][tracker].keys()}
         current_metrics_list = metrics_list + [trackeval.metrics.Count()]
         metric_names = trackeval.utils.validate_metrics_list(current_metrics_list)
 
@@ -56,7 +55,7 @@ for dataset_config in tests:
         test_data = trackeval.utils.load_detail(os.path.join(test_data_loc, tracker, cls + '_detailed.csv'))
 
         # Do checks
-        for seq in test_data.keys():
+        for seq in ['COMBINED_SEQ']:
             assert len(test_data[seq].keys()) > 250, len(test_data[seq].keys())
 
             details = []
@@ -71,6 +70,8 @@ for dataset_config in tests:
                 assert np.isclose(res_dict[field], test_data[seq][field]), \
                     seq + ': ' + cls + ': ' + field + " (" + str(res_dict[field]) + "," \
                     + str(test_data[seq][field]) + ")"
+
+        print('Class %s tests passed' % cls)
 
     print('Tracker %s tests passed' % tracker)
 print('All tests passed')
