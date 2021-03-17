@@ -45,7 +45,7 @@ class DAVISTrackerConverter(_BaseTrackerDataConverter):
             self.tracker_list = os.listdir(self.tracker_fol)
         else:
             tracker_dirs = os.listdir(self.tracker_fol)
-            for tracker in self.tracker_list:
+            for tracker in config['TRACKER_LIST']:
                 assert tracker in tracker_dirs, 'Tracker directory for tracker %s missing in %s' \
                                                 % (tracker, self.tracker_fol)
             self.tracker_list = config['TRACKER_LIST']
@@ -86,25 +86,34 @@ class DAVISTrackerConverter(_BaseTrackerDataConverter):
             num_timesteps = self.seq_lengths[seq]
             frames = np.sort(glob(os.path.join(seq_dir, '*.png')))
 
-            # load mask images
-            all_masks = np.zeros((num_timesteps, *self.seq_sizes[seq]))
-            for i, t in enumerate(frames):
-                all_masks[i, ...] = np.array(Image.open(t))
-
-            # split tracks and encode them
-            num_objects = int(np.max(all_masks))
-            tmp = np.ones((num_objects, *all_masks.shape))
-            tmp = tmp * np.arange(1, num_objects + 1)[:, None, None, None]
-            masks = np.array(tmp == all_masks[None, ...]).astype(np.uint8)
-            masks_encoded = {i: encode(np.array(np.transpose(masks[i, :], (1, 2, 0)), order='F'))
-                             for i in range(masks.shape[0])}
+            # # load mask images
+            # all_masks = np.zeros((num_timesteps, *self.seq_sizes[seq]))
+            # for i, t in enumerate(frames):
+            #     all_masks[i, ...] = np.array(Image.open(t))
+            #
+            # # split tracks and encode them
+            # num_objects = int(np.max(all_masks))
+            # tmp = np.ones((num_objects, *all_masks.shape))
+            # tmp = tmp * np.arange(1, num_objects + 1)[:, None, None, None]
+            # masks = np.array(tmp == all_masks[None, ...]).astype(np.uint8)
+            # masks_encoded = {i: encode(np.array(np.transpose(masks[i, :], (1, 2, 0)), order='F'))
+            #                  for i in range(masks.shape[0])}
 
             lines = []
             for t in range(num_timesteps):
-                to_append = ['%d %d %d %d %d %s %f %f %f %f %f\n'
-                             % (t, i, 1, masks_encoded[i][t]['size'][0], masks_encoded[i][t]['size'][1],
-                                masks_encoded[i][t]['counts'].decode("utf-8"), 0, 0, 0, 0, 1)
-                             for i in masks_encoded.keys()]
+                frame = np.array(Image.open(frames[t]))
+                id_values = np.unique(frame)
+                id_values = id_values[id_values != 0]
+                tmp = np.ones((len(id_values), *frame.shape))
+                tmp = tmp * id_values[:, None, None]
+                masks = np.array(tmp == frame[None, ...]).astype(np.uint8)
+                masks_encoded = encode(np.array(np.transpose(masks, (1, 2, 0)), order='F'))
+                ids = id_values.astype(int)
+
+                to_append = ['%d %d %d %d %d %s %f %f %f %f %d %d %d %d \n'
+                             % (t, ids[i], 1, masks_encoded[i]['size'][0], masks_encoded[i]['size'][1],
+                                masks_encoded[i]['counts'].decode("utf-8"), 0, 0, 0, 0, 0, 0, 0, 0)
+                             for i in range(len(masks_encoded))]
                 lines += to_append
             data[seq] = lines
         return data

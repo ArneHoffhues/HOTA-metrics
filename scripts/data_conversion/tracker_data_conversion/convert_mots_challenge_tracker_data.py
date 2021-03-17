@@ -43,7 +43,7 @@ class MOTSChallengeTrackerConverter(_BaseTrackerDataConverter):
             self.tracker_list = os.listdir(self.tracker_fol)
         else:
             tracker_dirs = os.listdir(self.tracker_fol)
-            for tracker in self.tracker_list:
+            for tracker in config['TRACKER_LIST']:
                 assert tracker in tracker_dirs, 'Tracker directory for tracker %s missing in %s' \
                                                 % (tracker, self.tracker_fol)
             self.tracker_list = config['TRACKER_LIST']
