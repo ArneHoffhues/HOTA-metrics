@@ -45,19 +45,6 @@ class DAVISConverter(_BaseDatasetConverter):
         self.seq_list = os.listdir(self.gt_fol)
         self.seq_lengths = {seq: len(os.listdir(os.path.join(self.gt_fol, seq))) for seq in self.seq_list}
         self.seq_sizes = {}
-        # seqmap_file = os.path.join(config['ORIGINAL_GT_FOLDER'], 'ImageSets/2017', config['SPLIT_TO_CONVERT'] + '.txt')
-        # assert os.path.isfile(seqmap_file), 'no seqmap found: ' + seqmap_file
-        # with open(seqmap_file) as fp:
-        #     reader = csv.reader(fp)
-        #     for i, row in enumerate(reader):
-        #         if row[0] == '':
-        #             continue
-        #         seq = row[0]
-        #         self.seq_list.append(seq)
-        #         curr_dir = os.path.join(self.gt_fol, seq)
-        #         assert os.path.isdir(curr_dir), 'GT directory not found: ' + curr_dir
-        #         curr_timesteps = len(glob(os.path.join(curr_dir, '*.png')))
-        #         self.seq_lengths[seq] = curr_timesteps
 
 
     def _prepare_data(self):
@@ -77,33 +64,45 @@ class DAVISConverter(_BaseDatasetConverter):
 
             # open ground truth masks
             mask0 = np.array(Image.open(frames[0]))
-            all_masks = np.zeros((num_timesteps, *mask0.shape))
-            for i, t in enumerate(frames):
-                all_masks[i, ...] = np.array(Image.open(t))
+            # all_masks = np.zeros((num_timesteps, *mask0.shape))
+            # for i, t in enumerate(frames):
+            #     all_masks[i, ...] = np.array(Image.open(t))
             self.seq_sizes[seq] = mask0.shape
 
             # determine and encode void masks
-            masks_void = all_masks == 255
-            masks_void = encode(np.array(np.transpose(masks_void, (1, 2, 0)), order='F').astype(np.uint8))
-
-            # split tracks and encode them
-            num_objects = int(np.max(all_masks))
-            tmp = np.ones((num_objects, *all_masks.shape))
-            tmp = tmp * np.arange(1, num_objects + 1)[:, None, None, None]
-            masks = np.array(tmp == all_masks[None, ...]).astype(np.uint8)
-            masks_encoded = {i: encode(np.array(np.transpose(masks[i, :], (1, 2, 0)), order='F'))
-                             for i in range(masks.shape[0])}
+            # masks_void = all_masks == 255
+            # masks_void = encode(np.array(np.transpose(masks_void, (1, 2, 0)), order='F').astype(np.uint8))
+            #
+            # # split tracks and encode them
+            # num_objects = int(np.max(all_masks))
+            # tmp = np.ones((num_objects, *all_masks.shape))
+            # tmp = tmp * np.arange(1, num_objects + 1)[:, None, None, None]
+            # masks = np.array(tmp == all_masks[None, ...]).astype(np.uint8)
+            # masks_encoded = {i: encode(np.array(np.transpose(masks[i, :], (1, 2, 0)), order='F'))
+            #                  for i in range(masks.shape[0])}
 
             lines = []
             for t in range(num_timesteps):
+                frame = np.array(Image.open(frames[t]))
+                void = frame == 255
+                frame[void] = 0
+                void_encoded = encode(np.asfortranarray(void.astype(np.uint8)))
+                id_values = np.unique(frame)
+                id_values = id_values[id_values != 0]
+                tmp = np.ones((len(id_values), *frame.shape))
+                tmp = tmp * id_values[:, None, None]
+                masks = np.array(tmp == frame[None, ...]).astype(np.uint8)
+                masks_encoded = encode(np.array(np.transpose(masks, (1, 2, 0)), order='F'))
+                ids = id_values.astype(int)
+
                 to_append = ['%d %d %d %d %d %s %f %f %f %f %d %d %d %d \n'
-                             % (t, i, 1, masks_encoded[i][t]['size'][0], masks_encoded[i][t]['size'][1],
-                                masks_encoded[i][t]['counts'].decode("utf-8"), 0, 0, 0, 0, 0, 0, 0, 0)
-                             for i in masks_encoded.keys()]
+                             % (t, ids[i], 1, masks_encoded[i]['size'][0], masks_encoded[i]['size'][1],
+                                masks_encoded[i]['counts'].decode("utf-8"), 0, 0, 0, 0, 0, 0, 0, 0)
+                             for i in range(len(masks_encoded))]
                 lines += to_append
                 lines += ['%d %d %d %d %d %s %f %f %f %f %d %d %d %d \n'
-                          % (t, -1, 2, masks_void[t]['size'][0], masks_void[t]['size'][1],
-                             masks_void[t]['counts'].decode("utf-8"), 0, 0, 0, 0, 0, 0, 0, 0)]
+                          % (t, -1, 2, void_encoded['size'][0], void_encoded['size'][1],
+                             void_encoded['counts'].decode("utf-8"), 0, 0, 0, 0, 0, 0, 0, 0)]
             data[seq] = lines
         return data
 
