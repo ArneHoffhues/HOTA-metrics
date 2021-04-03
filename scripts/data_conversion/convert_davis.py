@@ -64,22 +64,7 @@ class DAVISConverter(_BaseDatasetConverter):
 
             # open ground truth masks
             mask0 = np.array(Image.open(frames[0]))
-            # all_masks = np.zeros((num_timesteps, *mask0.shape))
-            # for i, t in enumerate(frames):
-            #     all_masks[i, ...] = np.array(Image.open(t))
             self.seq_sizes[seq] = mask0.shape
-
-            # determine and encode void masks
-            # masks_void = all_masks == 255
-            # masks_void = encode(np.array(np.transpose(masks_void, (1, 2, 0)), order='F').astype(np.uint8))
-            #
-            # # split tracks and encode them
-            # num_objects = int(np.max(all_masks))
-            # tmp = np.ones((num_objects, *all_masks.shape))
-            # tmp = tmp * np.arange(1, num_objects + 1)[:, None, None, None]
-            # masks = np.array(tmp == all_masks[None, ...]).astype(np.uint8)
-            # masks_encoded = {i: encode(np.array(np.transpose(masks[i, :], (1, 2, 0)), order='F'))
-            #                  for i in range(masks.shape[0])}
 
             lines = []
             for t in range(num_timesteps):

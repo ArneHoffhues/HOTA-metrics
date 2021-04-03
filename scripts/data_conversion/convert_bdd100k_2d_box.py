@@ -6,7 +6,7 @@ from _base_dataset_converter import _BaseDatasetConverter
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '...')))
 
-from hota_metrics import utils  # noqa: E402
+from trackeval import utils  # noqa: E402
 
 
 class BDD100K2DBoxConverter(_BaseDatasetConverter):

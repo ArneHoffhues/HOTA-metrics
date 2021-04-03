@@ -13,7 +13,7 @@ import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '...')))
 
-from hota_metrics import utils # noqa: E402
+from trackeval import utils # noqa: E402
 
 if __name__ == '__main__':
     dataset_converter = [BDD100K2DBoxConverter, BDD100KMOTSConverter, TAOConverter, YouTubeVISConverter, OVISConverter,
