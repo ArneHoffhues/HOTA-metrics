@@ -1,8 +1,8 @@
 
-""" run_mot_challenge.py
+""" run_bdd.py
 
 Run example:
-run_mot_challenge.py --USE_PARALLEL False --METRICS Hota --TRACKERS_TO_EVAL Lif_T
+run_bdd.py --USE_PARALLEL False --METRICS Hota --TRACKERS_TO_EVAL qdtrack
 
 Command Line Arguments: Defaults, # Comments
     Eval arguments:
@@ -17,20 +17,20 @@ Command Line Arguments: Defaults, # Comments
         'OUTPUT_DETAILED': True,
         'PLOT_CURVES': True,
     Dataset arguments:
-        'GT_FOLDER': os.path.join(code_path, 'data/gt/mot_challenge/'),  # Location of GT data
-        'TRACKERS_FOLDER': os.path.join(code_path, 'data/trackers/mot_challenge/'),  # Trackers location
-        'OUTPUT_FOLDER': None,  # Where to save eval results (if None, same as TRACKERS_FOLDER)
-        'TRACKERS_TO_EVAL': None,  # Filenames of trackers to eval (if None, all in folder)
-        'CLASSES_TO_EVAL': ['pedestrian'],  # Valid: ['pedestrian']
-        'BENCHMARK': 'MOT17',  # Valid: 'MOT17', 'MOT16', 'MOT20', 'MOT15'
-        'SPLIT_TO_EVAL': 'train',  # Valid: 'train', 'test', 'all'
-        'INPUT_AS_ZIP': False,  # Whether tracker input files are zipped
-        'PRINT_CONFIG': True,  # Whether to print current config
-        'DO_PREPROC': True,  # Whether to perform preprocessing (never done for 2D_MOT_2015)
-        'TRACKER_SUB_FOLDER': 'data',  # Tracker files are in TRACKER_FOLDER/tracker_name/TRACKER_SUB_FOLDER
-        'OUTPUT_SUB_FOLDER': '',  # Output files are saved in OUTPUT_FOLDER/tracker_name/OUTPUT_SUB_FOLDER
+            'GT_FOLDER': os.path.join(code_path, 'data/gt/bdd100k/bdd100k_val'),  # Location of GT data
+            'TRACKERS_FOLDER': os.path.join(code_path, 'data/trackers/bdd100k/bdd100k_val'),  # Trackers location
+            'OUTPUT_FOLDER': None,  # Where to save eval results (if None, same as TRACKERS_FOLDER)
+            'TRACKERS_TO_EVAL': None,  # Filenames of trackers to eval (if None, all in folder)
+            'CLASSES_TO_EVAL': ['pedestrian', 'rider', 'car', 'bus', 'truck', 'train', 'motorcycle', 'bicycle'],
+            # Valid: ['pedestrian', 'rider', 'car', 'bus', 'truck', 'train', 'motorcycle', 'bicycle']
+            'SPLIT_TO_EVAL': 'val',  # Valid: 'training', 'val',
+            'INPUT_AS_ZIP': False,  # Whether tracker input files are zipped
+            'PRINT_CONFIG': True,  # Whether to print current config
+            'TRACKER_SUB_FOLDER': 'data',  # Tracker files are in TRACKER_FOLDER/tracker_name/TRACKER_SUB_FOLDER
+            'OUTPUT_SUB_FOLDER': '',  # Output files are saved in OUTPUT_FOLDER/tracker_name/OUTPUT_SUB_FOLDER
+            'TRACKER_DISPLAY_NAMES': None,  # Names of trackers to display, if None: TRACKERS_TO_EVAL
     Metric arguments:
-        'METRICS': ['HOTA', 'CLEAR', 'Identity', 'VACE']
+        'METRICS': ['Hota','Clear', 'ID', 'Count']
 """
 
 import sys
@@ -46,7 +46,8 @@ if __name__ == '__main__':
 
     # Command line interface:
     default_eval_config = trackeval.Evaluator.get_default_eval_config()
-    default_dataset_config = trackeval.datasets.MotChallenge2DBox.get_default_dataset_config()
+    default_eval_config['PRINT_ONLY_COMBINED'] = True
+    default_dataset_config = trackeval.datasets.BDD100K2DBox.get_default_dataset_config()
     default_metrics_config = {'METRICS': ['HOTA', 'CLEAR', 'Identity']}
     config = {**default_eval_config, **default_dataset_config, **default_metrics_config}  # Merge default configs
     parser = argparse.ArgumentParser()
@@ -69,8 +70,6 @@ if __name__ == '__main__':
                 x = int(args[setting])
             elif type(args[setting]) == type(None):
                 x = None
-            elif setting == 'SEQ_INFO':
-                x = dict(zip(args[setting], [None]*len(args[setting])))
             else:
                 x = args[setting]
             config[setting] = x
@@ -80,9 +79,9 @@ if __name__ == '__main__':
 
     # Run code
     evaluator = trackeval.Evaluator(eval_config)
-    dataset_list = [trackeval.datasets.MotChallenge2DBox(dataset_config)]
+    dataset_list = [trackeval.datasets.BDD100K2DBox(dataset_config)]
     metrics_list = []
-    for metric in [trackeval.metrics.HOTA, trackeval.metrics.CLEAR, trackeval.metrics.Identity, trackeval.metrics.VACE]:
+    for metric in [trackeval.metrics.HOTA, trackeval.metrics.CLEAR, trackeval.metrics.Identity]:
         if metric.get_name() in metrics_config['METRICS']:
             metrics_list.append(metric())
     if len(metrics_list) == 0:

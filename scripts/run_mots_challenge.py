@@ -1,8 +1,7 @@
-
-""" run_mot_challenge.py
+""" run_mots.py
 
 Run example:
-run_mot_challenge.py --USE_PARALLEL False --METRICS Hota --TRACKERS_TO_EVAL Lif_T
+run_mots.py --USE_PARALLEL False --METRICS Hota --TRACKERS_TO_EVAL TrackRCNN
 
 Command Line Arguments: Defaults, # Comments
     Eval arguments:
@@ -22,15 +21,20 @@ Command Line Arguments: Defaults, # Comments
         'OUTPUT_FOLDER': None,  # Where to save eval results (if None, same as TRACKERS_FOLDER)
         'TRACKERS_TO_EVAL': None,  # Filenames of trackers to eval (if None, all in folder)
         'CLASSES_TO_EVAL': ['pedestrian'],  # Valid: ['pedestrian']
-        'BENCHMARK': 'MOT17',  # Valid: 'MOT17', 'MOT16', 'MOT20', 'MOT15'
-        'SPLIT_TO_EVAL': 'train',  # Valid: 'train', 'test', 'all'
+        'SPLIT_TO_EVAL': 'train',  # Valid: 'train', 'test'
         'INPUT_AS_ZIP': False,  # Whether tracker input files are zipped
         'PRINT_CONFIG': True,  # Whether to print current config
-        'DO_PREPROC': True,  # Whether to perform preprocessing (never done for 2D_MOT_2015)
         'TRACKER_SUB_FOLDER': 'data',  # Tracker files are in TRACKER_FOLDER/tracker_name/TRACKER_SUB_FOLDER
         'OUTPUT_SUB_FOLDER': '',  # Output files are saved in OUTPUT_FOLDER/tracker_name/OUTPUT_SUB_FOLDER
+        'SEQMAP_FOLDER': None,  # Where seqmaps are found (if None, GT_FOLDER/seqmaps)
+        'SEQMAP_FILE': None,  # Directly specify seqmap file (if none use seqmap_folder/MOTS-split_to_eval)
+        'SEQ_INFO': None,  # If not None, directly specify sequences to eval and their number of timesteps
+        'GT_LOC_FORMAT': '{gt_folder}/{seq}/gt/gt.txt',  # '{gt_folder}/{seq}/gt/gt.txt'
+        'SKIP_SPLIT_FOL': False,    # If False, data is in GT_FOLDER/MOTS-SPLIT_TO_EVAL/ and in
+                                    # TRACKERS_FOLDER/MOTS-SPLIT_TO_EVAL/tracker/
+                                    # If True, then the middle 'MOTS-split' folder is skipped for both.
     Metric arguments:
-        'METRICS': ['HOTA', 'CLEAR', 'Identity', 'VACE']
+        'METRICS': ['HOTA','CLEAR', 'Identity', 'VACE', 'JAndF']
 """
 
 import sys
@@ -46,7 +50,7 @@ if __name__ == '__main__':
 
     # Command line interface:
     default_eval_config = trackeval.Evaluator.get_default_eval_config()
-    default_dataset_config = trackeval.datasets.MotChallenge2DBox.get_default_dataset_config()
+    default_dataset_config = trackeval.datasets.MOTSChallenge.get_default_dataset_config()
     default_metrics_config = {'METRICS': ['HOTA', 'CLEAR', 'Identity']}
     config = {**default_eval_config, **default_dataset_config, **default_metrics_config}  # Merge default configs
     parser = argparse.ArgumentParser()
@@ -80,9 +84,10 @@ if __name__ == '__main__':
 
     # Run code
     evaluator = trackeval.Evaluator(eval_config)
-    dataset_list = [trackeval.datasets.MotChallenge2DBox(dataset_config)]
+    dataset_list = [trackeval.datasets.MOTSChallenge(dataset_config)]
     metrics_list = []
-    for metric in [trackeval.metrics.HOTA, trackeval.metrics.CLEAR, trackeval.metrics.Identity, trackeval.metrics.VACE]:
+    for metric in [trackeval.metrics.HOTA, trackeval.metrics.CLEAR, trackeval.metrics.Identity, trackeval.metrics.VACE,
+                   trackeval.metrics.JAndF]:
         if metric.get_name() in metrics_config['METRICS']:
             metrics_list.append(metric())
     if len(metrics_list) == 0:
