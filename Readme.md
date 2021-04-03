@@ -8,36 +8,46 @@ This codebase provides code for a number of different tracking evaluation metric
 
 Call for submission to our [RobMOTS Challenge](https://eval.vision.rwth-aachen.de/rvsu-workshop21/?page_id=110) (Robust Multi-Object Tracking and Segmentation) held in conjunction with our [RVSU CVPR'21 Workshop](https://eval.vision.rwth-aachen.de/rvsu-workshop21/). Robust tracking evaluation against 8 tracking benchmarks. Submission deadline May 27th. Also check out our workshop [call for papers](https://eval.vision.rwth-aachen.de/rvsu-workshop21/?page_id=74).
 
-## Currently implemented metrics
-
-The following metrics are currently implemented:
-
- - **[HOTA metrics](https://link.springer.com/article/10.1007/s11263-020-01375-2)** - **Recommended tracking metric** ([code](trackeval/metrics/hota.py))
- - **[CLEARMOT metrics](https://link.springer.com/article/10.1155/2008/246309)** (MOTA / MOTP / etc.) ([code](trackeval/metrics/clear.py))
- - **[Identity metrics](https://arxiv.org/abs/1609.01775)** (IDF1 / IDP / IDR / etc.) ([code](trackeval/metrics/identity.py))
- - **[J & F metrics](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Perazzi_A_Benchmark_Dataset_CVPR_2016_paper.pdf)** ([code](trackeval/metrics/j_and_f.py))
- - **[Track mAP metrics](https://arxiv.org/abs/1905.04804)** ([code](trackeval/metrics/track_map.py))
-
-## Currently implemented benchmarks
-
-The following benchmarks are currently implemented:
-
- - **[MOTChallenge](https://motchallenge.net/)** (MOT15/16/17/20) ([code](trackeval/datasets/mot_challenge_2d_box.py), [format](docs/MOTChallenge-format.txt))
- - **[KITTI Tracking](http://www.cvlibs.net/datasets/kitti/eval_tracking.php)** ([code](trackeval/datasets/kitti_2d_box.py), [format](docs/KITTI-format.txt))
- - **[MOTS](https://www.vision.rwth-aachen.de/page/mots)** ([KITTI MOTS](http://www.cvlibs.net/datasets/kitti/eval_mots.php) and [MOTS Challenge](https://motchallenge.net/results/MOTS/))** ([code](trackeval/datasets/mots_challenge.py) and [code](trackeval/datasets/kitti_mots.py), [format](docs/MOTS-format.txt))
- - **[BDD-100k](https://bdd-data.berkeley.edu/)** ([code](trackeval/datasets/bdd100k_2d_box.py), [format](docs/BDD100k-format.txt))
- - **[DAVIS](https://davischallenge.org/)** ([code](trackeval/datasets/davis.py), [format](docs/DAVIS-format.txt))
- - **[TAO](https://taodataset.org/)** ([code](trackeval/datasets/tao.py), [format](docs/TAO-format.txt))
- - **[YouTube-VIS](https://youtube-vos.org/dataset/vis/)** ([code](trackeval/datasets/youtube_vis.py), [format](docs/YouTube-VIS-format.txt))
-
-## Benchmarks which use TrackEval as their official evaluation code
+## Official Evaluation Code
 
 The following benchmarks use TrackEval as their official evaluation code, check out the links to see TrackEval in action:
 
  - **[KITTI Tracking](http://www.cvlibs.net/datasets/kitti/eval_tracking.php)**
  - **[KITTI MOTS](http://www.cvlibs.net/datasets/kitti/eval_mots.php)**
+ - **[MOTChallenge](https://motchallenge.net/)** ([Official Readme](docs/MOTChallenge-Official/Readme.md))
+ <!--- **[MOTS-Challenge](https://motchallenge.net/data/MOTS/)** ([Official Readme](docs/MOTS-Challenge-Official/Readme.md)) --->
 
 If you run a tracking benchmark and want to use TrackEval as your official evaluation code, please contact Jonathon (contact details below).
+
+## Currently implemented metrics
+
+The following metrics are currently implemented:
+
+Metric Family | Submetrics | Paper | Code | Notes |
+|----- | ----------- |----- | ----------- | ----- |
+| | | |  |  |
+|**HOTA metrics**|HOTA, DetA, AssA, LocA, DetPr, DetRe, AssPr, AssRe|[paper](https://link.springer.com/article/10.1007/s11263-020-01375-2)|[code](trackeval/metrics/hota.py)|**Recommended tracking metric**|
+|**CLEARMOT metrics**|MOTA, MOTP, MT, ML, Frag, etc.|[paper](https://link.springer.com/article/10.1155/2008/246309)|[code](trackeval/metrics/clear.py)| |
+|**Identity metrics**|IDF1, IDP, IDR|[paper](https://arxiv.org/abs/1609.01775)|[code](trackeval/metrics/identity.py)| |
+|**VACE metrics**|ATA, SFDA|[paper](https://link.springer.com/chapter/10.1007/11612704_16)|[code](trackeval/metrics/vace.py)| |
+|**Track mAP metrics**|Track mAP|[paper](https://arxiv.org/abs/1905.04804)|[code](trackeval/metrics/track_map.py)|Requires confidence scores|
+|**J & F metrics**|J&F, J, F|[paper](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Perazzi_A_Benchmark_Dataset_CVPR_2016_paper.pdf)|[code](trackeval/metrics/j_and_f.py)|Only for Seg Masks|
+
+
+## Currently implemented benchmarks
+
+The following benchmarks are currently implemented:
+
+Benchmark | Sub-benchmarks | Type | Website | Code | Data Format |
+|----- | ----------- |----- | ----------- | ----- | ----- |
+| | | |  |  | |
+|**MOTChallenge**|MOT15/16/17/20|2D BBox|[website](https://motchallenge.net/)|[code](trackeval/datasets/mot_challenge_2d_box.py)|[format](docs/MOTChallenge-format.txt)|
+|**KITTI Tracking**| |2D BBox|[website](http://www.cvlibs.net/datasets/kitti/eval_tracking.php)|[code](trackeval/datasets/kitti_2d_box.py)|[format](docs/KITTI-format.txt)|
+|**BDD-100k**| |2D BBox|[website](https://bdd-data.berkeley.edu/)|[code](trackeval/datasets/bdd100k.py)|[format](docs/BDD100k-format.txt)|
+|**TAO**| |2D BBox|[website](https://taodataset.org/)|[code](trackeval/datasets/tao.py)|[format](docs/TAO-format.txt)|
+|**MOTS**|KITTI-MOTS, MOTS-Challenge|Seg Mask|[website](https://www.vision.rwth-aachen.de/page/mots)|[code](trackeval/datasets/mots_challenge.py) and [code](trackeval/datasets/kitti_mots.py)|[format](docs/MOTS-format.txt)|
+|**DAVIS**|Unsupervised|Seg Mask|[website](https://davischallenge.org/)|[code](trackeval/datasets/davis.py)|[format](docs/DAVIS-format.txt)|
+|**YouTube-VIS**| |Seg Mask|[website](https://youtube-vos.org/dataset/vis/)|[code](trackeval/datasets/youtube_vis.py)|[format](docs/YouTube-VIS-format.txt)|
 
 ## HOTA metrics
 
@@ -96,12 +106,14 @@ To convert formats, check out the format specifications defined [here](docs).
 By default, we would recommend the MOTChallenge format, although any implemented format should work. Note that for many cases you will want to use the argument ```--DO_PREPROC False``` unless you want to run preprocessing to remove distractor objects.
 
 ## Requirments
-
+ Code tested on Python 3.7.
+ 
  - Minimum requirements: numpy, scipy
  - For plotting: matplotlib
  - For segmentation datasets (KITTI MOTS, MOTS-Challenge, DAVIS, YouTube-VIS): pycocotools
  - For DAVIS dataset: Pillow
  - For J & F metric: opencv_python, scikit_image
+ - For simples test-cases for metrics: pytest
 
 use ```pip3 -r install requirements.txt``` to install all possible requirements.
 
@@ -119,7 +131,7 @@ Num Cores|TrackEval|MOTChallenge|Speedup vs MOTChallenge|py-motmetrics|Speedup v
 *using a different number of cores as py-motmetrics doesn't allow multiprocessing.
 				
 ```
-python scripts/run_mot_challenge.py --BENCHMARK MOT17 --TRACKERS_TO_EVAL Lif_T --METRICS Clear ID --USE_PARALLEL False --NUM_PARALLEL_CORES 1  
+python scripts/run_mot_challenge.py --BENCHMARK MOT17 --TRACKERS_TO_EVAL Lif_T --METRICS CLEAR Identity --USE_PARALLEL False --NUM_PARALLEL_CORES 1  
 ```
 				
 Evaluating CLEAR + ID metrics on LPC_MOT tracker on MOT20-train (seconds) on a i7-9700K CPU with 8 physical cores (median of 3 runs):	
@@ -128,7 +140,7 @@ Num Cores|TrackEval|MOTChallenge|Speedup vs MOTChallenge|py-motmetrics|Speedup v
 1|18.63|105.3|5.65x|175.17|9.40x
 
 ```
-python scripts/run_mot_challenge.py --BENCHMARK MOT20 --TRACKERS_TO_EVAL LPC_MOT --METRICS Clear ID --USE_PARALLEL False --NUM_PARALLEL_CORES 1
+python scripts/run_mot_challenge.py --BENCHMARK MOT20 --TRACKERS_TO_EVAL LPC_MOT --METRICS CLEAR Identity --USE_PARALLEL False --NUM_PARALLEL_CORES 1
 ```
 
 ## License

@@ -145,10 +145,19 @@ class TAO(_BaseDataset):
         If is_gt, this returns a dict which contains the fields:
         [gt_ids, gt_classes] : list (for each timestep) of 1D NDArrays (for each det).
         [gt_dets]: list (for each timestep) of lists of detections.
+        [classes_to_gt_tracks]: dictionary with class values as keys and list of dictionaries (with frame indices as
+                                keys and corresponding segmentations as values) for each track
+        [classes_to_gt_track_ids, classes_to_gt_track_areas, classes_to_gt_track_lengths]: dictionary with class values
+                                as keys and lists (for each track) as values
 
         if not is_gt, this returns a dict which contains the fields:
         [tracker_ids, tracker_classes, tracker_confidences] : list (for each timestep) of 1D NDArrays (for each det).
         [tracker_dets]: list (for each timestep) of lists of detections.
+        [classes_to_dt_tracks]: dictionary with class values as keys and list of dictionaries (with frame indices as
+                                keys and corresponding segmentations as values) for each track
+        [classes_to_dt_track_ids, classes_to_dt_track_areas, classes_to_dt_track_lengths]: dictionary with class values
+                                                                                           as keys and lists as values
+        [classes_to_dt_track_scores]: dictionary with class values as keys and 1D numpy arrays as values
         """
         seq_id = self.seq_name_to_seq_id[seq]
         # File location
@@ -268,7 +277,6 @@ class TAO(_BaseDataset):
             After the above preprocessing steps, this function also calculates the number of gt and tracker detections
                 and unique track ids. It also relabels gt and tracker ids to be contiguous and checks that ids are
                 unique within each timestep.
-
         TAO:
             In TAO, the 4 preproc steps are as follow:
                 1) All classes present in the ground truth data are evaluated separately.

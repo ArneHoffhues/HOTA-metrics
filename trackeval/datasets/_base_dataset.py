@@ -160,7 +160,7 @@ class _BaseDataset(ABC):
                         # Deal with extra trailing spaces at the end of rows
                         if row[-1] in '':
                             row = row[:-1]
-                        timestep = row[time_col]
+                        timestep = str(int(float(row[time_col])))
                         # Read ignore regions separately.
                         is_ignored = False
                         for ignore_key, ignore_value in crowd_ignore_filter.items():

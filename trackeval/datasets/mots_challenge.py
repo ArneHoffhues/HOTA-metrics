@@ -127,6 +127,17 @@ class MOTSChallenge(_BaseDataset):
         if self.config["SEQ_INFO"]:
             seq_list = list(self.config["SEQ_INFO"].keys())
             seq_lengths = self.config["SEQ_INFO"]
+
+            # If sequence length is 'None' tries to read sequence length from .ini files.
+            for seq, seq_length in seq_lengths.items():
+                if seq_length is None:
+                    ini_file = os.path.join(self.gt_fol, seq, 'seqinfo.ini')
+                    if not os.path.isfile(ini_file):
+                        raise TrackEvalException('ini file does not exist: ' + seq + '/' + os.path.basename(ini_file))
+                    ini_data = configparser.ConfigParser()
+                    ini_data.read(ini_file)
+                    seq_lengths[seq] = int(ini_data['Sequence']['seqLength'])
+
         else:
             if self.config["SEQMAP_FILE"]:
                 seqmap_file = self.config["SEQMAP_FILE"]
@@ -200,6 +211,18 @@ class MOTSChallenge(_BaseDataset):
         if is_gt:
             data_keys += ['gt_ignore_region']
         raw_data = {key: [None] * num_timesteps for key in data_keys}
+
+        # Check for any extra time keys
+        extra_time_keys = [x for x in read_data.keys() if x not in [str(t+1) for t in range(num_timesteps)]]
+        if len(extra_time_keys) > 0:
+            if is_gt:
+                text = 'Ground-truth'
+            else:
+                text = 'Tracking'
+            raise TrackEvalException(
+                text + ' data contains the following invalid timesteps in seq %s: ' % seq + ', '.join(
+                    [str(x) + ', ' for x in extra_time_keys]))
+
         for t in range(num_timesteps):
             time_key = str(t+1)
             # list to collect all masks of a timestep to check for overlapping areas
