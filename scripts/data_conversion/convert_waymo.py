@@ -36,8 +36,8 @@ class WaymoConverter(_BaseDatasetConverter):
         self.split_to_convert = 'waymo_' + config['SPLIT_TO_CONVERT']
 
         # class list and corresponding class ids
-        self.class_name_to_class_id = {'TYPE_UNKNOWN': 0, 'TYPE_VEHICLE': 1, 'TYPE_PEDESTRIAN': 3, 'TYPE_SIGN': 4,
-                                       'TYPE_CYCLIST': 5}
+        self.class_name_to_class_id = {'TYPE_UNKNOWN': 0, 'TYPE_VEHICLE': 1, 'TYPE_PEDESTRIAN': 2, 'TYPE_SIGN': 3,
+                                       'TYPE_CYCLIST': 4}
 
         # Get sequences
         self.camera_types = {1: 'FRONT', 2: 'FRONT_LEFT', 3: 'FRONT_RIGHT', 4: 'SIDE_LEFT', 5: 'SIDE_RIGHT'}
@@ -84,10 +84,10 @@ class WaymoConverter(_BaseDatasetConverter):
                             track_id_counter += 1
                         lines[camera_name].append('%d %d %d %d %d %s %.13f %.13f %.13f %.13f %d %d %d %d\n'
                                                   % (timestep, track_id_mapping[label.id], label.type, 0, 0, 'None',
-                                                     label.box.center_x - label.box.width / 2,
-                                                     label.box.center_y - label.box.length / 2,
-                                                     label.box.center_x + label.box.width / 2,
-                                                     label.box.center_y + label.box.length / 2,
+                                                     label.box.center_x - 0.5 * label.box.length,
+                                                     label.box.center_y - 0.5 * label.box.width,
+                                                     label.box.center_x + 0.5 * label.box.length,
+                                                     label.box.center_y + 0.5 * label.box.width,
                                                      0, 0, 0, 0))
                 timestep += 1
             for camera_name in self.camera_types.values():
